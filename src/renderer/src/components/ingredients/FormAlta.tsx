@@ -51,7 +51,7 @@ const FormAlta = () => {
     onError: (error: Error) => {
       console.log(error);
       toast({
-        title: `Error al crear ingrediente"`,
+        title: `Error al crear ingrediente`,
         variant: "destructive",
         description: error.message || `Error inoportuno al crear ingrediente`,
         className:
@@ -78,7 +78,7 @@ const FormAlta = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
-    // await mutation.mutateAsync(values);
+    await mutation.mutateAsync(values);
   }
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -113,10 +113,9 @@ const FormAlta = () => {
               />
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
-                {/* <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Cargando..." : "Guardar"}
-                </Button> */}
-                <Button type="submit">Guardar</Button>
+                <Button type="submit" disabled={mutation.isLoading}>
+                  {mutation.isLoading ? "Cargando..." : "Guardar"}
+                </Button>
               </AlertDialogFooter>
             </form>
           </Form>

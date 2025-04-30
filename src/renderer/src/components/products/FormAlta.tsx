@@ -24,11 +24,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { createCategory } from "@/api/CategoryApi";
 import { HousePlus } from "lucide-react";
 import { useMutation, useQueryClient } from "react-query";
 import { createProduct } from "@/api/ProductApi";
 import { SelectMultiple } from "../ui/SelectMultiple";
+import TableIngredientsSelect from "./TableIngredientsSelect";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -50,6 +50,7 @@ const formSchema = z.object({
   ingredients: z.array(
     z.object({
       id: z.string(),
+      description: z.string(),
       isMandatory: z.boolean(),
     })
   ).min(1, { message: "Debe seleccionar al menos un ingrediente" }),
@@ -67,6 +68,7 @@ const FormAlta = () => {
       unitaryPrice: undefined,
       categoryId: undefined,
       isActive: true,
+      ingredients: [],
     },
   });
 
@@ -100,8 +102,15 @@ const FormAlta = () => {
     },
   });
 
+  console.log(form.watch());
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    const ingredientsToSend = values.ingredients.map(ingredient => ({
+      id: ingredient.id,
+      isMandatory: ingredient.isMandatory
+    }));
+
+    console.log("Datos para enviar:", ingredientsToSend);
     // await mutation.mutateAsync(values);
   }
   return (
@@ -186,19 +195,38 @@ const FormAlta = () => {
                   )}
                 />
               </div>
-              <FormField
-                control={form.control}
-                name="ingredients"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ingredientes</FormLabel>
-                    <FormControl>
-                      <SelectMultiple value={field.value} onChange={field.onChange} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+              <div className="grid grid-cols-1 gap-4">
+                <FormField
+                  control={form.control}
+                  name="ingredients"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Ingredientes</FormLabel>
+                      <FormControl>
+                        <SelectMultiple
+                          selectedIds={(field.value ?? []).map((i) => i.id)} // Solo ids
+                          onChange={(selectedOptions) => {
+                            const ingredients = selectedOptions.map(option => ({
+                              id: option.value,
+                              description: option.label,
+                              isMandatory: false, // Por defecto no obligatorio
+                            }))
+                            field.onChange(ingredients)
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {/* Tabla de ingredientes seleccionados */}
+                {form.watch("ingredients")?.length > 0 && (
+                  <TableIngredientsSelect
+                    ingredientsSelected={form.watch("ingredients")}
+                    setValue={form.setValue}
+                  />
                 )}
-              />
+              </div>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
                 <Button type="submit" disabled={mutation.isLoading}>

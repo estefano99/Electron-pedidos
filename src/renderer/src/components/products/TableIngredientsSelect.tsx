@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import {
   ColumnDef,
@@ -13,19 +11,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowDown, CircleEllipsis, Pencil } from "lucide-react"
+import { ArrowDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-// import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+
 import {
   Table,
   TableBody,
@@ -34,31 +23,71 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { category } from "@/types/category"
-import FormEditar from "./FormEditar"
-import FormAlta from "./FormAlta"
-import Delete from "./Delete"
+import { Checkbox } from "../ui/checkbox"
+import { Ingredient } from "@/types/ingredient"
+import { UseFormSetValue } from "react-hook-form"
 
-type props = {
-  categories: category[];
-
+type IngredientSelected = {
+  id: string;
+  description: string;
+  isMandatory: boolean;
 }
 
-export function CategoryTable({ categories }: props) {
+type Props = {
+  ingredientsSelected: IngredientSelected[]
+  setValue: UseFormSetValue<any>; // también el setValue que usás para actualizar
+}
+
+
+const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
-  const [isEdit, setIsEdit] = React.useState(false);
-  const [categoryEdit, setCategoryEdit] = React.useState<category | null>(null);
   const [sortDirections, setSortDirections] = React.useState<Record<string, boolean>>({});
 
-  const handleEdit = (category: category) => {
-    setIsEdit(true);
-    setCategoryEdit(category);
-  };
 
-  const columns: ColumnDef<category>[] = [
+  React.useEffect(() => {
+    // Obtener los índices seleccionados (ej: ['0', '1'])
+    const selectedIndexes = Object.keys(rowSelection).filter(key => rowSelection[parseInt(key)]);
+
+    // Mapear esos índices al array de ingredientes
+    const selectedIds = selectedIndexes.map(index => ingredientsSelected[parseInt(index)].id);
+
+    // Actualizar el valor en el form
+    setValue("ingredients", ingredientsSelected.map(ingredient => ({
+      ...ingredient,
+      isMandatory: selectedIds.includes(ingredient.id)
+    })));
+
+    console.log(selectedIndexes)
+
+  }, [rowSelection]);
+
+
+  const columns: ColumnDef<Ingredient>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
     {
       accessorKey: "description",
       header: ({ column }) => (
@@ -73,75 +102,22 @@ export function CategoryTable({ categories }: props) {
             }));
           }}
         >
-          Descripción
+          Descripcion
           <ArrowDown
             className={`ml-2 h-4 w-4 transition-all ${sortDirections.description ? 'rotate-180' : ''
               }`}
           />
         </Button>
       ),
-    },
-    // Activo / Inactivo
-    {
-      accessorKey: "isActive",
-      header: () => <span className="text-sm">Estado</span>,
-      cell: ({ row }) => (
-        <span
-          className={
-            row.getValue("isActive")
-              ? "text-green-600 font-semibold"
-              : "text-red-600 font-semibold"
-          }
-        >
-          {row.getValue("isActive") ? "Activo" : "Inactivo"}
-        </span>
-      ),
-      filterFn: (row, columnId, filterValue) =>
-        String(row.getValue(columnId)) === String(filterValue),
-    },
-    {
-      id: "actions",
-      enableHiding: false,
-      header: () => "Acciones",
-      cell: ({ row }) => {
-        const category = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="ml-3 h-8 w-8 p-0">
-                <span className="sr-only">Abrir menu</span>
-                <CircleEllipsis />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel className="text-center select-none">Acciones</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="focus:bg-yellow-300/30 flex items-center gap-2"
-              >
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="focus:bg-blue-500/30 flex items-center gap-2 cursor-pointer"
-                onClick={() => handleEdit(category)}
-              >
-                <Pencil className="w-5 h-5" />
-                Editar categoria
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="focus:bg-red-500/30 flex items-center gap-2"
-              >
-                <Delete category={category} />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
+      filterFn: (row, columnId, filterValue) => {
+        const cellValue = row.getValue(columnId);
+        return String(cellValue).includes(filterValue); // Filtrado por coincidencia parcial
       },
-    },
+    }
   ]
 
   const table = useReactTable({
-    data: categories,
+    data: ingredientsSelected,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -151,7 +127,7 @@ export function CategoryTable({ categories }: props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: { pagination: { pageSize: 10 } },
+    initialState: { pagination: { pageSize: 5 } },
     state: {
       sorting,
       columnFilters,
@@ -159,28 +135,9 @@ export function CategoryTable({ categories }: props) {
       rowSelection,
     },
   })
-
   return (
     <div className="w-11/12 mx-auto">
-      <div className="grid grid-cols-2 items-center py-4 gap-5">
-        <Input
-          placeholder="Filtrar por descripcion..."
-          value={(table.getColumn("description")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("description")?.setFilterValue(event.target.value)
-          }
-          className="w-full text-xs 2xl:text-sm"
-        />
-        {isEdit && categoryEdit && (
-          <FormEditar
-            category={categoryEdit}
-            setIsEdit={setIsEdit}
-            isEdit={isEdit}
-            setCategoryEdit={setCategoryEdit}
-          />
-        )}
-        <FormAlta />
-      </div>
+      <p className="text-sm pb-2 text-yellow-400">Seleccione los ingredientes que serán obligatorios, osea no se podrán sacar del producto.</p>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -219,8 +176,11 @@ export function CategoryTable({ categories }: props) {
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+              <TableRow className="h-10">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center"
+                >
                   No se encontraron resultados.
                 </TableCell>
               </TableRow>
@@ -229,6 +189,10 @@ export function CategoryTable({ categories }: props) {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
+        <div className="flex-1 text-sm text-muted-foreground">
+          {table.getFilteredSelectedRowModel().rows.length} de{" "}
+          {table.getFilteredRowModel().rows.length} filas seleccionadas.
+        </div>
         <div className="space-x-2">
           <Button
             variant="outline"
@@ -253,3 +217,5 @@ export function CategoryTable({ categories }: props) {
     </div>
   )
 }
+
+export default TableIngredientsSelect

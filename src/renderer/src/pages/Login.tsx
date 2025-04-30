@@ -1,4 +1,3 @@
-// import { login } from "@/api/Auth";
 import { Button } from "@/components/ui/button";
 import {
   FormControl,
@@ -8,15 +7,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// import { toast } from "@/hooks/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { useMutation } from "@tanstack/react-query";
+import { useMutation } from "react-query";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { login } from "@/api/Auth";
 
 const formSchema = z.object({
-  nombre: z.string().min(1, {
+  username: z.string().min(1, {
     message: "Nombre es requerido",
   }),
   password: z.string().min(1, {
@@ -28,35 +28,34 @@ export function Login() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      nombre: "",
+      username: "",
       password: "",
     },
   });
   const navigate = useNavigate();
 
-  // const mutation = useMutation({
-  //   mutationFn: login,
-  //   onError: (error) => {
-  //     console.log(error);
-  //     toast({
-  //       title: error.message || "Hubo un error al iniciar sesion",
-  //       variant: "destructive",
-  //       description:
-  //         `Intente iniciar sesion nuevamente, o revise sus credenciales`,
-  //       className:
-  //         "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     console.log("success")
-  //     navigate("/inicio");
-  //   },
-  // });
+  const mutation = useMutation({
+    mutationFn: login,
+    onError: (error: Error) => {
+      console.log(error);
+      toast({
+        title: error.message || "Hubo un error al iniciar sesion",
+        variant: "destructive",
+        description:
+          `Intente iniciar sesion nuevamente, o revise sus credenciales`,
+        className:
+          "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
+      });
+    },
+    onSuccess: () => {
+      console.log("success")
+      navigate("/inicio");
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    navigate("/inicio");
-    // await mutation.mutateAsync(values);
+    await mutation.mutateAsync(values);
   }
   return (
     <div className="w-full lg:grid lg:grid-cols-2">
@@ -73,12 +72,12 @@ export function Login() {
               {/* Campo para Nombre */}
               <FormField
                 control={form.control}
-                name="nombre"
+                name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>Nombre de usuario</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ingresar nombre" {...field} />
+                      <Input placeholder="Ingresar nombre de usuario" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

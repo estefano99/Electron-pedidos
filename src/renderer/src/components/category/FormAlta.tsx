@@ -25,7 +25,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { createCategory } from "@/api/CategoryApi";
-import { HousePlus } from "lucide-react";
+import { Tag } from "lucide-react";
 import { useMutation, useQueryClient } from "react-query";
 
 const formSchema = z.object({
@@ -47,13 +47,12 @@ const FormAlta = () => {
     },
   });
 
-
   const mutation = useMutation({
     mutationFn: createCategory,
     onError: (error: Error) => {
       console.log(error);
       toast({
-        title: `Error al crear categoria"`,
+        title: `Error al crear categoria`,
         variant: "destructive",
         description: error.message || `Error inoportuno al crear categoria`,
         className:
@@ -69,7 +68,7 @@ const FormAlta = () => {
           </span>
         ),
         className:
-          "from-green-600 to-green-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
+          "from-green to-green-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
       });
 
       queryClient.invalidateQueries({ queryKey: ["categories"] });
@@ -80,13 +79,13 @@ const FormAlta = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
-    // await mutation.mutateAsync(values);
+    await mutation.mutateAsync(values);
   }
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogTrigger asChild className="h-8.5 2xl:h-10">
-        <Button className="flex gap-2 text-xs 2xl:text-sm" variant="secondary">
-          <HousePlus className="h-4 w-4 2xl:h-5 2xl:w-5" />
+        <Button className="flex gap-2 text-xs 2xl:text-sm">
+          <Tag className="h-4 w-4 2xl:h-5 2xl:w-5" />
           Crear Categoría</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-full h-full md:h-auto">

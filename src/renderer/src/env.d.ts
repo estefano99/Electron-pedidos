@@ -17,14 +17,12 @@ declare global {
           barCode?: string
         }
       ) => Promise<{ success: boolean; result?: any; error?: string }>
-      printTicket: (
-        data: {
-          header?: string
-          text?: string
-          footer?: string
-          printerName?: string
-        }
-      ) => Promise<{ ok: boolean; error?: string }>
+      printTicket: (data: {
+        header?: string
+        text?: string
+        footer?: string
+        printerName?: string
+      }) => Promise<{ ok: boolean; error?: string }>
     }
   }
 }

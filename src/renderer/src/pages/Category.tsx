@@ -1,30 +1,19 @@
+import { getCategories } from "@/api/CategoryApi";
 import { CategoryTable } from "@/components/category/CategoryTable";
 import HeaderPages from "@/components/HeaderPages";
-import { category } from "@/types/category";
-import { useState } from "react";
+import { GetCategoriesResponse } from "@/types/category";
 import { useQuery } from "react-query";
 
-const categorias: { id: number; description: string, isActive: boolean }[] = [
-  { id: 1, description: "Bebidas", isActive: true },
-  { id: 2, description: "Comidas rápidas", isActive: true },
-  { id: 3, description: "Postres", isActive: false },
-  { id: 4, description: "Ensaladas", isActive: true },
-  { id: 5, description: "Desayunos", isActive: true },
-];
-
-
 const Category = () => {
-  const [isActive, setIsActive] = useState(true);
-  // const { data, isLoading } = useQuery<category[]>({
-  //   queryKey: ["categories", activos],
-  //   queryFn: () => getCategory(activos),
-  // });
-  const isLoading = false;
+  const { data, isLoading } = useQuery<GetCategoriesResponse>({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
 
   return (
     <div className="w-full">
       <HeaderPages title="Categorías" />
-      {isLoading ? "Cargando..." : categorias && <CategoryTable categories={categorias} isActive={isActive} setIsActive={setIsActive} />}
+      {isLoading ? "Cargando..." : data && <CategoryTable categories={data.categories} />}
     </div>
   );
 };

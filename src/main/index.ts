@@ -19,7 +19,8 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: false, // 👈 Habilitar integración completa
       nodeIntegration: true, // 👈 Necesario para que funcione getPrinters()
-      sandbox: false
+      sandbox: false,
+
     }
   })
 
@@ -29,8 +30,18 @@ function createWindow(): void {
     if (is.dev) {
       mainWindow.webContents.openDevTools()
     }
-
   })
+
+  // Escuchar cuando se carga el contenido
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ["default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data:; style-src * 'unsafe-inline';"]
+      }
+    })
+  })
+
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
