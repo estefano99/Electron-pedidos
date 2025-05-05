@@ -23,7 +23,11 @@ const getProducts = async (): Promise<ProductWithIngredients[]> => {
 
 const createProduct = async (product: ProductWithIngredients): Promise<response> => {
   try {
-    const { data } = await clienteAxios.post(productsRoute, product)
+    const { data } = await clienteAxios.post(productsRoute, product, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
     return data
   } catch (error) {
     console.log('[ERROR] createProducts: ', error)

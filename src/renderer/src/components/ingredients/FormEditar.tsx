@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Dispatch, SetStateAction } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Ingredient } from "@/types/ingredient";
 import { editIngredient } from "@/api/IngredientApi";
 

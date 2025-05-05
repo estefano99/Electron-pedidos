@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Ingredient } from "@/types/ingredient";
 import { Trash2, TriangleAlert } from "lucide-react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { deleteIngredient } from "@/api/IngredientApi";
 

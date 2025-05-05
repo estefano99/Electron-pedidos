@@ -25,7 +25,7 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { HousePlus } from "lucide-react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createIngredient } from "@/api/IngredientApi";
 
 const formSchema = z.object({
@@ -113,8 +113,8 @@ const FormAlta = () => {
               />
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
-                <Button type="submit" disabled={mutation.isLoading}>
-                  {mutation.isLoading ? "Cargando..." : "Guardar"}
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Cargando..." : "Guardar"}
                 </Button>
               </AlertDialogFooter>
             </form>

@@ -26,7 +26,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { createCategory } from "@/api/CategoryApi";
 import { Tag } from "lucide-react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   description: z.string().min(1, {
@@ -135,8 +135,8 @@ const FormAlta = () => {
               />
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
-                <Button type="submit" disabled={mutation.isLoading}>
-                  {mutation.isLoading ? "Cargando..." : "Guardar"}
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Cargando..." : "Guardar"}
                 </Button>
               </AlertDialogFooter>
             </form>

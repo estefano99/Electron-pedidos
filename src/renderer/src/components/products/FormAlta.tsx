@@ -25,10 +25,12 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { HousePlus } from "lucide-react";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProduct } from "@/api/ProductApi";
 import { SelectMultiple } from "../ui/SelectMultiple";
 import TableIngredientsSelect from "./TableIngredientsSelect";
+import { SelectCategory } from "./SelectCategory";
+import { Label } from "../ui/label";
 
 const formSchema = z.object({
   name: z.string().min(1, {
@@ -37,7 +39,7 @@ const formSchema = z.object({
   description: z.string().min(1, {
     message: "La Descripcion es requerida.",
   }),
-  unitaryPrice: z
+  price: z
     .coerce.number({
       required_error: "Precio unitario es obligatorio.",
       invalid_type_error: "Precio unitario debe ser un número.",
@@ -53,19 +55,25 @@ const formSchema = z.object({
       description: z.string(),
       isMandatory: z.boolean(),
     })
-  ).min(1, { message: "Debe seleccionar al menos un ingrediente" }),
+  ),
+  image: z
+    .instanceof(File)
+    .refine((file) => file.size < 5 * 1024 * 1024, {
+      message: "La imagen debe ser menor a 5MB",
+    }),
 });
 
 const FormAlta = () => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
-      unitaryPrice: undefined,
+      price: undefined,
       categoryId: undefined,
       isActive: true,
       ingredients: [],
@@ -102,16 +110,36 @@ const FormAlta = () => {
     },
   });
 
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>, onChange: (file: File) => void) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      onChange(file); // Se Envia el archivo al hook sin controlar el valor
+      setFilePreview(URL.createObjectURL(file));
+    }
+  }
+
+  console.log(filePreview)
   console.log(form.watch());
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const ingredientsToSend = values.ingredients.map(ingredient => ({
-      id: ingredient.id,
-      isMandatory: ingredient.isMandatory
-    }));
+    // const ingredientsToSend = values.ingredients.map(ingredient => ({
+    //   id: ingredient.id,
+    //   isMandatory: ingredient.isMandatory
+    // }));
 
-    console.log("Datos para enviar:", ingredientsToSend);
-    // await mutation.mutateAsync(values);
+    // console.log("Datos para enviar:", ingredientsToSend);
+    console.log(values)
+    const data = {
+      name: values.name,
+      description: values.description,
+      price: values.price,
+      categoryId: values.categoryId,
+      isActive: values.isActive,
+      ingredients: values.ingredients,
+      image: values.image,
+    };
+    console.log(data)
+    // await mutation.mutateAsync(data);
   }
   return (
     <AlertDialog onOpenChange={setOpen} open={open}>
@@ -162,12 +190,28 @@ const FormAlta = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="unitaryPrice"
+                  name="price"
                   render={({ field }) => (
                     <FormItem className="grow">
-                      <FormLabel>Precio unitario <span className="text-red-500">*</span></FormLabel>
+                      <FormLabel>Precio <span className="text-red-500">*</span></FormLabel>
                       <FormControl>
-                        <Input placeholder="Ingresar precio unitario" {...field} />
+                        <Input placeholder="Ingresar precio" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoría <span className="text-red-500">*</span></FormLabel>
+                      <FormControl>
+                        <SelectCategory
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -195,8 +239,39 @@ const FormAlta = () => {
                   )}
                 />
               </div>
-              <div className="grid grid-cols-1 gap-4">
-                <FormField
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid w-full max-w-sm items-center gap-1.5">
+                  <FormField
+                    control={form.control}
+                    name="image"
+                    render={({ field: { onChange, onBlur, ref, name } }) => (
+                      <FormItem>
+                        <FormLabel>Imagen</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            name={name}
+                            onBlur={onBlur}
+                            ref={ref}
+                            onChange={(e) => handleChangeFile(e, onChange)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {filePreview && (
+                    <div className="mt-2">
+                      <img
+                        src={filePreview}
+                        alt="Preview"
+                        className="w-64 h-64 object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+                {/* <FormField
                   control={form.control}
                   name="ingredients"
                   render={({ field }) => (
@@ -218,7 +293,7 @@ const FormAlta = () => {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
+                /> */}
                 {/* Tabla de ingredientes seleccionados */}
                 {form.watch("ingredients")?.length > 0 && (
                   <TableIngredientsSelect
@@ -229,8 +304,8 @@ const FormAlta = () => {
               </div>
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
-                <Button type="submit" disabled={mutation.isLoading}>
-                  {mutation.isLoading ? "Cargando..." : "Guardar"}
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Cargando..." : "Guardar"}
                 </Button>
               </AlertDialogFooter>
             </form>

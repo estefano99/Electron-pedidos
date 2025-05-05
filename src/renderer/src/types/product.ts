@@ -5,7 +5,7 @@ export type Product = {
   id: string
   name: string
   description: string
-  unitaryPrice: number
+  price: number
   urlImage: string
   isActive: boolean
   categoryId: string

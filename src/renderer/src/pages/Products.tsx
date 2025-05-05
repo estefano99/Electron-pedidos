@@ -69,6 +69,7 @@ const Products = () => {
   // const { data, isLoading } = useQuery<Product[]>({
   // queryKey: ["products"],
   // queryFn: getProducts,
+  // staleTime: 60 * 1000,
   // });
   const isLoading = false;
   return (

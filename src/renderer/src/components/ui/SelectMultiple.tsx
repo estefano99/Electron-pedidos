@@ -1,6 +1,7 @@
 import Select, { MultiValue } from "react-select"
 import { GetIngredientResponse, Ingredient } from "@/types/ingredient"
-import { useQueryClient } from "react-query"
+import { useQuery } from "@tanstack/react-query"
+import { getIngredients } from "@/api/IngredientApi"
 
 type OptionType = {
   label: string
@@ -13,9 +14,14 @@ interface Props {
 }
 
 export const SelectMultiple = ({ selectedIds, onChange }: Props) => {
-  const queryClient = useQueryClient();
-  const data: GetIngredientResponse[] | undefined = queryClient.getQueryData(["ingredients"]);
-  console.log('Ingredients: ', data)
+  const { data, isLoading } = useQuery<GetIngredientResponse>({
+    queryKey: ['ingredients'],
+    queryFn: getIngredients,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
+  });
+
 
   // Opciones posibles
   const ingredientOptions: OptionType[] | undefined = data?.ingredients.map((ingredient: Ingredient) => ({
@@ -30,6 +36,7 @@ export const SelectMultiple = ({ selectedIds, onChange }: Props) => {
       options={ingredientOptions ?? []}
       value={selectedOptions}
       onChange={onChange}
+      isLoading={isLoading}
       placeholder="Seleccionar ingredientes..."
       className="basic-multi-select text-black cursor-pointer"
       classNamePrefix="select"
