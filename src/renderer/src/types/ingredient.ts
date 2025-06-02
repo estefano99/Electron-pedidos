@@ -5,7 +5,4 @@ export interface Ingredient {
 
 export type IngredientForm = Omit<Ingredient, 'id'>
 
-export type GetIngredientResponse = {
-  message: string
-  ingredients: Ingredient[]
-}
+export type GetIngredientResponse = Ingredient[]

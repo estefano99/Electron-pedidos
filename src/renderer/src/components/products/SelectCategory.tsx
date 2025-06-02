@@ -25,6 +25,8 @@ export function SelectCategory({ value, onValueChange }: Props) {
     refetchOnMount: false
   });
 
+  // console.log(data)
+
   return (
     isLoading ? <p className="text-bold">Cargando...</p> : data && (
       <Select onValueChange={onValueChange} defaultValue={value}>
@@ -33,7 +35,7 @@ export function SelectCategory({ value, onValueChange }: Props) {
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            {data.categories.map((category) => (
+            {data.map((category) => (
               <SelectItem className="hover:bg-blue-600" key={category.id} value={category.id}>
                 {category.description}
               </SelectItem>

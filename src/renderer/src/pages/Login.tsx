@@ -1,19 +1,20 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
-import { FormProvider, useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { z } from "zod";
-import { login } from "@/api/Auth";
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
+import { toast } from "@/hooks/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation } from "@tanstack/react-query"
+import { FormProvider, useForm } from "react-hook-form"
+import { useNavigate } from "react-router-dom"
+import { z } from "zod"
+import { login } from "@/api/Auth"
 
 const formSchema = z.object({
   username: z.string().min(1, {
@@ -22,7 +23,7 @@ const formSchema = z.object({
   password: z.string().min(1, {
     message: "Contraseña es requerida",
   }),
-});
+})
 
 export function Login() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -31,92 +32,108 @@ export function Login() {
       username: "",
       password: "",
     },
-  });
-  const navigate = useNavigate();
+  })
+
+  const navigate = useNavigate()
 
   const mutation = useMutation({
     mutationFn: login,
     onError: (error: Error) => {
-      console.log(error);
+      console.log(error)
       toast({
-        title: error.message || "Hubo un error al iniciar sesion",
+        title: error.message || "Hubo un error al iniciar sesión",
         variant: "destructive",
-        description:
-          `Intente iniciar sesion nuevamente, o revise sus credenciales`,
-        className:
-          "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
-      });
+        description: "Intente nuevamente o revise sus credenciales.",
+        className: "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
+      })
     },
     onSuccess: () => {
       console.log("success")
-      navigate("/inicio");
+      navigate("/inicio")
     },
-  });
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    await mutation.mutateAsync(values);
+    await mutation.mutateAsync(values)
   }
-  return (
-    <div className="w-full lg:grid lg:grid-cols-2">
-      <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
-          <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">Iniciar Sesión</h1>
-            <p className="text-balance text-muted-foreground">
-              Ingresa nombre de usuario y contraseña para ingresar al sistema.
-            </p>
-          </div>
-          <FormProvider {...form}>
-            <form className="grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
-              {/* Campo para Nombre */}
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre de usuario</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Ingresar nombre de usuario" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {/* Campo para Contraseña */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Ingresar contraseña"
-                        {...field}
-                        type="password"
-                        autoComplete="off"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <Button type="submit" className="w-full">
-                Iniciar Sesión
-              </Button>
-            </form>
-          </FormProvider>
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Imagen del local para pantallas grandes */}
+      <div className="flex-1 bg-muted hidden md:block relative">
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="text-center space-y-4">
+            <img
+              src="/placeholder.svg?height=400&width=600"
+              alt="Imagen del local comercial"
+              className="rounded-lg shadow-lg mx-auto w-[600px] h-[400px] object-cover"
+            />
+            <h2 className="text-2xl font-bold">[Nombre del local]</h2>
+            <p className="text-muted-foreground">Sistema de Pedidos</p>
+          </div>
         </div>
       </div>
-      <div className="hidden bg-muted lg:block">
-        <img
-          src="../assets/electron.svg"
-          alt="Foto de electron"
-          className="h-full w-full dark:brightness-[0.8]"
-        />
+
+      {/* Formulario de login */}
+      <div className="flex-1 flex items-center justify-center p-6 flex-col">
+        {/* Logo para dispositivos móviles */}
+        <div className="mb-6 text-center md:hidden">
+          <img
+            src="/placeholder.svg?height=150&width=150"
+            alt="Logo del local comercial"
+            className="rounded-full shadow-md mx-auto w-[150px] h-[150px] object-cover"
+          />
+          <h2 className="text-xl font-bold mt-3">[Nombre del local]</h2>
+          <p className="text-sm text-muted-foreground">Sistema de Pedidos</p>
+        </div>
+
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Iniciar Sesión</CardTitle>
+            <CardDescription className="text-center">Ingrese sus credenciales para acceder al sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormProvider {...form}>
+              <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nombre de usuario</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ingresar nombre de usuario" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Ingresar contraseña"
+                          {...field}
+                          autoComplete="off"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Ingresando" : "Ingresar"}
+                </Button>
+              </form>
+            </FormProvider>
+          </CardContent>
+        </Card>
       </div>
     </div>
-  );
+  )
 }

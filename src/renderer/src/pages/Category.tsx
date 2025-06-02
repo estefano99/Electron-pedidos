@@ -16,7 +16,7 @@ const Category = () => {
   return (
     <div className="w-full">
       <HeaderPages title="Categorías" />
-      {isLoading ? "Cargando..." : data && <CategoryTable categories={data.categories} />}
+      {isLoading ? "Cargando..." : data && <CategoryTable categories={data || []} />}
     </div>
   );
 };

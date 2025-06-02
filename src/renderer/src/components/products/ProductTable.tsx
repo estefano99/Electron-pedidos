@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, BetweenVerticalStart, CircleEllipsis, Delete, Pencil } from "lucide-react"
+import { ArrowUpDown, BetweenVerticalStart, CircleEllipsis, Pencil } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -36,6 +36,8 @@ import FormEditar from "./FormEditar"
 import { ProductWithIngredients } from "@/types/product"
 import FormAlta from "./FormAlta"
 import { formatPrice } from "@/lib/functions"
+import { ProductInfo } from "./ProductInfo"
+import DeleteProduct from "./Delete"
 
 type Props = {
   products: ProductWithIngredients[];
@@ -50,6 +52,7 @@ export function ProductTable({ products }: Props) {
   const [productEdit, setProductEdit] = React.useState<ProductWithIngredients | null>(null);
 
   const handleEdit = (product: ProductWithIngredients) => {
+    console.log(product)
     setIsEdit(true);
     setProductEdit(product);
   };
@@ -84,10 +87,10 @@ export function ProductTable({ products }: Props) {
 
     // Precio unitario
     {
-      accessorKey: "unitaryPrice",
+      accessorKey: "price",
       header: () => <div className="text-center text-sm">Precio</div>,
       cell: ({ row }) => {
-        const price: number = row.getValue("unitaryPrice")
+        const price: number = row.getValue("price")
         return (
           <div className="text-center">
             {formatPrice(price)}
@@ -139,14 +142,17 @@ export function ProductTable({ products }: Props) {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel className="text-center">Acciones</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => handleEdit(product)}>
-                <Pencil className="mr-2 h-4 w-4" />
+              <DropdownMenuItem className="cursor-pointer" onSelect={() => handleEdit(product)}>
+                <Pencil className=" h-4 w-4" />
                 Editar
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="focus:bg-red-500/30 flex items-center gap-2"
               >
-                <Delete product={product} />
+                <DeleteProduct product={product} />
+              </DropdownMenuItem>
+              <DropdownMenuItem className="p-0" asChild>
+                <ProductInfo product={product} />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -281,10 +287,6 @@ export function ProductTable({ products }: Props) {
         </Table>
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{" "}
-          {table.getFilteredRowModel().rows.length} filas seleccionadas.
-        </div>
         <div className="space-x-2">
           <Button
             variant="outline"

@@ -37,7 +37,7 @@ function createWindow(): void {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob:; style-src * 'unsafe-inline';"
+          "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src 'self' data: blob: https://res.cloudinary.com; style-src * 'unsafe-inline';"
         ]
       }
     })

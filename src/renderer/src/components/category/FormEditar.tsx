@@ -81,7 +81,7 @@ const FormEditar = ({
           <span>
             Se ha editado la Categoría{" "}
             <span className="underline underline-offset-2">
-              {respuesta.category.description}
+              {respuesta.description}
             </span>
           </span>
         ),
@@ -151,10 +151,9 @@ const FormEditar = ({
               />
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                {/* <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Cargando..." : "Guardar"}
-                </Button> */}
-                <Button type="submit">Guardar</Button>
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? "Guardando..." : "Guardar"}
+                </Button>
               </AlertDialogFooter>
             </form>
           </Form>

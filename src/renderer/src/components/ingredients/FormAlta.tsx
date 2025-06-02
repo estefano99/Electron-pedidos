@@ -24,7 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { HousePlus } from "lucide-react";
+import { ChefHat } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createIngredient } from "@/api/IngredientApi";
 
@@ -60,10 +60,10 @@ const FormAlta = () => {
     },
     onSuccess: (respuesta) => {
       toast({
-        title: respuesta.message,
+        title: "Ingrediente creado con éxito",
         description: (
           <span>
-            Se ha creado{" "} {respuesta.ingredient.description}
+            Se ha creado{" "} {respuesta.description}
           </span>
         ),
         className:
@@ -84,7 +84,7 @@ const FormAlta = () => {
     <AlertDialog onOpenChange={setOpen} open={open}>
       <AlertDialogTrigger asChild className="h-8.5 2xl:h-10">
         <Button className="flex gap-2 text-xs 2xl:text-sm">
-          <HousePlus className="h-4 w-4 2xl:h-5 2xl:w-5" />
+          <ChefHat className="h-4 w-4 2xl:h-5 2xl:w-5" />
           Crear Ingrediente</Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="w-full">
@@ -114,7 +114,7 @@ const FormAlta = () => {
               <AlertDialogFooter>
                 <AlertDialogCancel onClick={() => form.reset()}>Cancelar</AlertDialogCancel>
                 <Button type="submit" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Cargando..." : "Guardar"}
+                  {mutation.isPending ? "Guardando..." : "Guardar"}
                 </Button>
               </AlertDialogFooter>
             </form>

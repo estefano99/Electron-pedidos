@@ -6,7 +6,7 @@ export type Product = {
   name: string
   description: string
   price: number
-  urlImage: string
+  imgUrl: string
   isActive: boolean
   categoryId: string
   category: category
@@ -16,9 +16,11 @@ export type Product = {
 
 export type ProductIngredient = {
   id: string
-  idProduct: number
-  idIngredient: number
+  ingredientId: string
+  productId: string
   isMandatory: boolean
+  quantity: number
+  ingredient: Ingredient
 }
 
 export type ProductWithIngredients = Product & {
@@ -26,4 +28,23 @@ export type ProductWithIngredients = Product & {
     ingredient: Ingredient
     isMandatory: boolean
   }[]
+}
+
+//type que se utiliza en el formulario de alta de productos
+export type CreateProductForm = {
+  name: string
+  description: string
+  price: number
+  categoryId: string
+  isActive: boolean
+  ingredients: {
+    id: string
+    description: string
+    isMandatory: boolean
+  }[]
+  imgUrl: File
+}
+
+export type UpdateProductForm = CreateProductForm & {
+  id: string
 }

@@ -1,13 +1,8 @@
 import { category, categoryForm, GetCategoriesResponse } from '@/types/category'
 import { isAxiosError } from 'axios'
-import { categoriesBack, categoryRoute, tenantRoute } from '@/lib/routes'
+import { categoriesBack, tenantRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
-
-type response = {
-  message: string
-  category: category
-}
 
 const getCategories = async (): Promise<GetCategoriesResponse> => {
   const tenantId = getTenantId()
@@ -23,7 +18,7 @@ const getCategories = async (): Promise<GetCategoriesResponse> => {
   }
 }
 
-const createCategory = async (category: categoryForm): Promise<response> => {
+const createCategory = async (category: categoryForm): Promise<category> => {
   const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
@@ -40,10 +35,14 @@ const createCategory = async (category: categoryForm): Promise<response> => {
   }
 }
 
-const editCategory = async (category: category): Promise<response> => {
+const editCategory = async (category: category): Promise<category> => {
+  const tenantId = getTenantId()
   const { id, description } = category
+
   try {
-    const { data } = await clienteAxios.put(`${categoryRoute}/${id}`, { description })
+    const { data } = await clienteAxios.put(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`, {
+      description
+    })
     return data
   } catch (error) {
     console.log('[ERROR] editCategory: ', error)
@@ -55,9 +54,10 @@ const editCategory = async (category: category): Promise<response> => {
 }
 
 const deleteCategory = async (category: category) => {
+  const tenantId = getTenantId()
   const { id } = category
   try {
-    const { data } = await clienteAxios.delete(`${categoryRoute}/${id}`)
+    const { data } = await clienteAxios.delete(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`)
     return data
   } catch (error) {
     console.log('[ERROR] deleteCategory: ', error)

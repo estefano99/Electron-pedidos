@@ -61,10 +61,10 @@ const FormAlta = () => {
     },
     onSuccess: (respuesta) => {
       toast({
-        title: respuesta.message,
+        title: "Categoria creada con éxito",
         description: (
           <span>
-            Se ha creado{" "} {respuesta.category.description}
+            Se ha creado{" "} {respuesta.description}
           </span>
         ),
         className:

@@ -6,7 +6,4 @@ export interface category {
 
 export type categoryForm = Omit<category, 'id'>
 
-export type GetCategoriesResponse = {
-  message: string
-  categories: category[]
-}
+export type GetCategoriesResponse = category[]

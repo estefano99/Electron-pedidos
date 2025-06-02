@@ -4,7 +4,8 @@ import {
   LogOut,
   Pizza,
   ChefHat,
-  Tags
+  Tags,
+  ClipboardList
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarNav from "./SidebarNav";
@@ -28,6 +29,7 @@ const Sidebar = () => {
               { title: "Categorias", icon: Tags },
               { title: "Productos", icon: Pizza },
               { title: "Ingredientes", icon: ChefHat },
+              { title: "Pedidos", icon: ClipboardList },
             ]}
           />
         </div>
@@ -61,6 +63,7 @@ const Sidebar = () => {
                   { title: "Categorias", icon: Tags },
                   { title: "Productos", icon: Pizza },
                   { title: "Ingredientes", icon: ChefHat },
+                  { title: "Pedidos", icon: ClipboardList },
                 ]}
               />
             </SheetContent>

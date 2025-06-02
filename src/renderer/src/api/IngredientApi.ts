@@ -4,11 +4,6 @@ import { ingredientsBack, tenantRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 
-type response = {
-  message: string
-  ingredient: Ingredient
-}
-
 const getIngredients = async (): Promise<GetIngredientResponse> => {
   const tenantId = getTenantId()
   try {
@@ -23,7 +18,7 @@ const getIngredients = async (): Promise<GetIngredientResponse> => {
   }
 }
 
-const createIngredient = async (ingredient: IngredientForm): Promise<response> => {
+const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient> => {
   const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
@@ -40,10 +35,14 @@ const createIngredient = async (ingredient: IngredientForm): Promise<response> =
   }
 }
 
-const editIngredient = async (ingredient: Ingredient): Promise<response> => {
+const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
+  const tenantId = getTenantId()
+
   const { id, description } = ingredient
   try {
-    const { data } = await clienteAxios.put(`${ingredientsBack}/${id}`, { description })
+    const { data } = await clienteAxios.put(`${tenantRoute}/${tenantId}/${ingredientsBack}/${id}`, {
+      description
+    })
     return data
   } catch (error) {
     console.log('[ERROR] editIngredient: ', error)
@@ -55,9 +54,13 @@ const editIngredient = async (ingredient: Ingredient): Promise<response> => {
 }
 
 const deleteIngredient = async (ingredient: Ingredient) => {
+  const tenantId = getTenantId()
+
   const { id } = ingredient
   try {
-    const { data } = await clienteAxios.delete(`${ingredientsBack}/${id}`)
+    const { data } = await clienteAxios.delete(
+      `${tenantRoute}/${tenantId}/${ingredientsBack}/${id}`
+    )
     return data
   } catch (error) {
     console.log('[ERROR] deleteIngredient: ', error)

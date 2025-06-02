@@ -7,7 +7,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -43,26 +42,30 @@ const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
   const [sortDirections, setSortDirections] = React.useState<Record<string, boolean>>({});
 
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {}
+    ingredientsSelected.forEach((ingredient, index) => {
+      if (ingredient.isMandatory) {
+        initial[index.toString()] = true // Establecer el valor en true para los ingredientes seleccionados
+      }
+    })
+    return initial
+  })
 
   React.useEffect(() => {
-    // Obtener los índices seleccionados (ej: ['0', '1'])
-    const selectedIndexes = Object.keys(rowSelection).filter(key => rowSelection[parseInt(key)]);
+    const selectedIndexes = Object.keys(rowSelection).filter(key => rowSelection[parseInt(key)]) // Obtener los índices seleccionados, ejemplo: ["0", "2"]
+    const selectedIds = selectedIndexes.map(index => ingredientsSelected[parseInt(index)].id)// Obtener los IDs seleccionados en base a los índices seleccionados, ejemplo: ["1", "3"]
 
-    // Mapear esos índices al array de ingredientes
-    const selectedIds = selectedIndexes.map(index => ingredientsSelected[parseInt(index)].id);
-
-    // Actualizar el valor en el form
-    setValue("ingredients", ingredientsSelected.map(ingredient => ({
-      ...ingredient,
-      isMandatory: selectedIds.includes(ingredient.id)
-    })));
-
-    console.log(selectedIndexes)
-
-  }, [rowSelection]);
+    setValue(
+      "ingredients",
+      ingredientsSelected.map((ingredient) => ({ // Mapea los ingredientes seleccionados, ejemplo: [{ id: "1", description: "Ingrediente 1", isMandatory: true }]
+        ...ingredient,
+        isMandatory: selectedIds.includes(ingredient.id)
+      }))
+    )
+  }, [rowSelection])
 
 
   const columns: ColumnDef<Ingredient>[] = [
@@ -119,15 +122,13 @@ const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
   const table = useReactTable({
     data: ingredientsSelected,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: { pagination: { pageSize: 5 } },
     state: {
       sorting,
       columnFilters,
@@ -138,7 +139,7 @@ const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
   return (
     <div className="w-11/12 mx-auto">
       <p className="text-sm pb-2 text-yellow-400">Seleccione los ingredientes que serán obligatorios, osea no se podrán sacar del producto.</p>
-      <div className="rounded-md border">
+      <div className="rounded-md border max-h-44 overflow-y-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -187,32 +188,6 @@ const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
             )}
           </TableBody>
         </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-2">
-        <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} de{" "}
-          {table.getFilteredRowModel().rows.length} filas seleccionadas.
-        </div>
-        <div className="space-x-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-            className="text-xs 2xl:text-sm h-7"
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-            className="text-xs 2xl:text-sm h-7"
-          >
-            Siguiente
-          </Button>
-        </div>
       </div>
     </div>
   )

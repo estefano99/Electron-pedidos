@@ -8,7 +8,6 @@ const Ingredients = () => {
   const { data, isLoading } = useQuery<GetIngredientResponse>({
     queryKey: ["ingredients"],
     queryFn: getIngredients,
-    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
     refetchOnMount: false
   });
@@ -16,7 +15,7 @@ const Ingredients = () => {
   return (
     <div className="w-full">
       <HeaderPages title="Ingedientes" />
-      {isLoading ? "Cargando..." : data && <IngredientTable ingredients={data.ingredients} />}
+      {isLoading ? "Cargando..." : data && <IngredientTable ingredients={data} />}
     </div>
   )
 }

@@ -22,9 +22,8 @@ export const SelectMultiple = ({ selectedIds, onChange }: Props) => {
     refetchOnMount: false
   });
 
-
   // Opciones posibles
-  const ingredientOptions: OptionType[] | undefined = data?.ingredients.map((ingredient: Ingredient) => ({
+  const ingredientOptions: OptionType[] | undefined = data?.map((ingredient: Ingredient) => ({
     label: ingredient.description,
     value: ingredient.id,
   }))
@@ -38,7 +37,7 @@ export const SelectMultiple = ({ selectedIds, onChange }: Props) => {
       onChange={onChange}
       isLoading={isLoading}
       placeholder="Seleccionar ingredientes..."
-      className="basic-multi-select text-black cursor-pointer"
+      className="basic-multi-select text-black cursor-pointer max-w-xs"
       classNamePrefix="select"
     />
   )
