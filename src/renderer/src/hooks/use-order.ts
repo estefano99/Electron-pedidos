@@ -1,4 +1,3 @@
-// hooks/use-order.ts
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { OrderItem, OrderStatus, NewOrder, OrderSource } from '@/types/order'
 import { getTenantId } from '@/lib/functions'
@@ -18,14 +17,14 @@ export function useOrder() {
 
   const allOrders = queryClient.getQueryData<NewOrder[]>(['allOrders']) || []
 
-  const startNewOrder = (customerName: string, scheduledTime: Date) => {
+  const startNewOrder = (customerName: string, scheduledTime: Date | null) => {
     const tenantId = getTenantId()
     if (!tenantId) throw new Error('Tenant ID no encontrado')
 
     const newOrder: NewOrder = {
       id: uuidv4(),
       customerName,
-      scheduledTime,
+      scheduledTime: scheduledTime ?? undefined,
       items: [],
       total: 0,
       status: OrderStatus.PENDING,
@@ -50,6 +49,9 @@ export function useOrder() {
     })
   }
 
+  const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
+  console.log(order)
+
   const removeItemFromCurrentOrder = (itemId: string) => {
     const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
     if (!order) return
@@ -64,26 +66,24 @@ export function useOrder() {
     })
   }
 
-const editItemInCurrentOrder = (itemId: string, newItem: OrderItem) => {
-  const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
-  if (!order) return
+  const editItemInCurrentOrder = (itemId: string, newItem: OrderItem) => {
+    const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
+    if (!order) return
 
-  const filteredItems = order.items.filter((item) => item.id !== itemId)
-  const updatedItems = [...filteredItems, newItem]
-  const updatedTotal = updatedItems.reduce((sum, item) => sum + item.totalPrice, 0)
+    const filteredItems = order.items.filter((item) => item.id !== itemId)
+    const updatedItems = [...filteredItems, newItem]
+    const updatedTotal = updatedItems.reduce((sum, item) => sum + item.totalPrice, 0)
 
-  queryClient.setQueryData(['currentOrder'], {
-    ...order,
-    items: updatedItems,
-    total: updatedTotal
-  })
-}
-
+    queryClient.setQueryData(['currentOrder'], {
+      ...order,
+      items: updatedItems,
+      total: updatedTotal
+    })
+  }
 
   const completeCurrentOrder = () => {
     const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
     if (!order || order.items.length === 0) return
-    console.log('anashe')
     const updatedOrders = [...allOrders, order]
     queryClient.setQueryData(['allOrders'], updatedOrders)
     queryClient.removeQueries({ queryKey: ['currentOrder'] })

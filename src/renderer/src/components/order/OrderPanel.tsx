@@ -2,24 +2,61 @@ import { useOrder } from "@/hooks/use-order"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Clock, User } from "lucide-react"
+import { Clock, Loader, User } from "lucide-react"
 import { OrderItemCard } from "./OrderItemCard"
 import { useState } from "react"
-import { OrderItem } from "@/types/order"
+import { NewOrder, OrderItem } from "@/types/order"
 import { IngredientSelector } from "./IngredientSelector"
 import { formatPrice } from "@/lib/functions"
 import { Badge } from "../ui/badge"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { createOrder } from "@/api/OrderApi"
+import { toast } from "sonner"
 
-export function OrderPanel() {
-  const { currentOrder, removeItemFromCurrentOrder, completeCurrentOrder } = useOrder()
+interface OrderPanelProps {
+  setCustomerName: (name: string) => void
+  setScheduledTime: (time: Date | null) => void
+  setActiveTab: (tab: string) => void
+}
+
+export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: OrderPanelProps) {
+  const { currentOrder, removeItemFromCurrentOrder } = useOrder()
+  const queryClient = useQueryClient()
 
   const [editingItem, setEditingItem] = useState<OrderItem | null>(null)
   const [_isModalOpen, setModalOpen] = useState(false)
+
+  const mutation = useMutation({
+    mutationFn: createOrder,
+    onError: (error: Error) => {
+      console.log(error);
+      toast.error("Error al crear el pedido");
+    },
+    onSuccess: () => {
+      toast.success("Pedido creado exitosamente");
+      queryClient.removeQueries({ queryKey: ['currentOrder'] })
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      setCustomerName("")
+      setScheduledTime(null)
+      setActiveTab("current-order")
+    },
+  });
 
   const handleEdit = (item: OrderItem) => {
     setEditingItem(item)
     removeItemFromCurrentOrder(item.id)
     setModalOpen(true)
+  }
+
+  const handleCompleteOrder = async () => {
+    // if (currentOrder.items.length > 0) completeCurrentOrder()
+    const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
+
+    if (!order || order.items.length === 0) {
+      toast.error("No hay productos en el pedido")
+      return
+    }
+    await mutation.mutateAsync(order);
   }
 
   if (!currentOrder) {
@@ -34,10 +71,6 @@ export function OrderPanel() {
     )
   }
 
-  const handleCompleteOrder = () => {
-    if (currentOrder.items.length > 0) completeCurrentOrder()
-  }
-
   return (
     <div className="space-y-4 h-full flex flex-col">
       <Card>
@@ -47,9 +80,11 @@ export function OrderPanel() {
             {currentOrder.customerName}
           </CardTitle>
           <Badge variant="outline" className="flex items-center gap-1 text-md">
-              <Clock className="h-3 w-3" />
-              {currentOrder.scheduledTime && new Date(currentOrder.scheduledTime).toLocaleTimeString()}
-            </Badge>
+            <Clock className="h-3 w-3" />
+            {currentOrder.scheduledTime
+              ? new Date(currentOrder.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : 'Sin horario'}
+          </Badge>
         </CardHeader>
       </Card>
 
@@ -80,8 +115,8 @@ export function OrderPanel() {
           </div>
 
           <div className="space-y-2">
-            <Button onClick={handleCompleteOrder} className="w-full" size="lg">
-              Confirmar Pedido
+            <Button onClick={handleCompleteOrder} disabled={mutation.isPending} className="w-full" size="lg">
+              {mutation.isPending ? <span className="flex items-center gap-2"><Loader /> Creando Pedido</span> : <span>Confirmar pedido</span>}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
               El pedido se enviará a cocina

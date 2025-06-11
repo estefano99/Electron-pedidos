@@ -1,205 +1,61 @@
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useOrder } from "@/hooks/use-order"
-import { Clock, User, ChefHat, CheckCircle, Eye } from "lucide-react"
-import type { Order, OrderStatus } from "@/types/order"
+import { OrderStatus } from "@/types/order"
+import { useQuery } from "@tanstack/react-query"
+import { GetOrdersResponse, getOrdersTodayByStatus } from "@/api/OrderApi"
+import { OrderCard } from "./orderCard/OrderCard"
+import { AlertCircle } from "lucide-react"
+import { statusColors } from "@/lib/functions"
+
+const orderStatuses: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.IN_PREPARATION, OrderStatus.READY, OrderStatus.DELIVERED, OrderStatus.CANCELLED]
 
 export function OrderHistory() {
-  const { allOrders, updateOrderStatus } = useOrder()
+  const { updateOrderStatus } = useOrder()
+  const [activeFilter, setActiveFilter] = useState<OrderStatus>(OrderStatus.PENDING)
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
 
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500"
-      case "preparing":
-        return "bg-blue-500"
-      case "ready":
-        return "bg-green-500"
-      case "delivered":
-        return "bg-gray-500"
-      default:
-        return "bg-gray-500"
-    }
-  }
+  const { data, isLoading } = useQuery<GetOrdersResponse>({
+    queryKey: ["ordersTodayByStatus", activeFilter],
+    queryFn: () => getOrdersTodayByStatus(activeFilter),
+  });
 
-  const getStatusText = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente"
-      case "preparing":
-        return "En Preparación"
-      case "ready":
-        return "Listo"
-      case "delivered":
-        return "Entregado"
-      default:
-        return "Desconocido"
-    }
-  }
-
-  const getStatusIcon = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-4 w-4" />
-      case "preparing":
-        return <ChefHat className="h-4 w-4" />
-      case "ready":
-        return <CheckCircle className="h-4 w-4" />
-      case "delivered":
-        return <CheckCircle className="h-4 w-4" />
-      default:
-        return <Clock className="h-4 w-4" />
-    }
-  }
-
-  if (allOrders.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <h3 className="text-lg font-medium mb-2">No hay pedidos</h3>
-        <p className="text-muted-foreground text-sm">Los pedidos completados aparecerán aquí</p>
-      </div>
-    )
-  }
+  console.log(activeFilter)
 
   return (
-    <div className="space-y-4 h-full overflow-y-auto">
-      {allOrders.map((order) => (
-        <OrderCard
-          key={order.id}
-          order={order}
-          isExpanded={expandedOrder === order.id}
-          onToggleExpand={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-          onUpdateStatus={(status) => updateOrderStatus(order.id, status)}
-        />
-      ))}
-    </div>
-  )
-}
+    <Tabs value={activeFilter} onValueChange={(val) => setActiveFilter(val as OrderStatus)}>
+      <TabsList className="grid w-full grid-cols-3 h-auto p-1">
+        {orderStatuses.map((status) => (
+          <TabsTrigger key={status} value={status} className="flex flex-col items-center gap-2 py-2 text-xs">
+            {statusColors[status].label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
 
-interface OrderCardProps {
-  order: Order
-  isExpanded: boolean
-  onToggleExpand: () => void
-  onUpdateStatus: (status: OrderStatus) => void
-}
-
-function OrderCard({ order, isExpanded, onToggleExpand, onUpdateStatus }: OrderCardProps) {
-  const getStatusColor = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return "bg-yellow-500"
-      case "preparing":
-        return "bg-blue-500"
-      case "ready":
-        return "bg-green-500"
-      case "delivered":
-        return "bg-gray-500"
-      default:
-        return "bg-gray-500"
-    }
-  }
-
-  const getStatusText = (status: OrderStatus) => {
-    switch (status) {
-      case "pending":
-        return "Pendiente"
-      case "preparing":
-        return "En Preparación"
-      case "ready":
-        return "Listo"
-      case "delivered":
-        return "Entregado"
-      default:
-        return "Desconocido"
-    }
-  }
-
-  const getNextStatus = (currentStatus: OrderStatus): OrderStatus | null => {
-    switch (currentStatus) {
-      case "pending":
-        return "preparing"
-      case "preparing":
-        return "ready"
-      case "ready":
-        return "delivered"
-      default:
-        return null
-    }
-  }
-
-  const nextStatus = getNextStatus(order.status)
-
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <User className="h-4 w-4" />
-              {order.customerName}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Pedido #{order.id.slice(-6)} • {new Date(order.createdAt).toLocaleTimeString()}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className={`${getStatusColor(order.status)} text-white`}>{getStatusText(order.status)}</Badge>
-            <Button variant="ghost" size="icon" onClick={onToggleExpand}>
-              <Eye className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        <div className="flex justify-between items-center mb-3">
-          <span className="font-medium">{order.items.length} productos</span>
-          <span className="font-bold">${(order.total * 1.1).toFixed(2)}</span>
-        </div>
-
-        {isExpanded && (
-          <div className="space-y-3">
-            <Separator />
-            <div className="space-y-2">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between items-start text-sm">
-                  <div className="flex-1">
-                    <p className="font-medium">{item.product.name}</p>
-                    {item.includedIngredients.length !== item.product.defaultIngredients.length && (
-                      <p className="text-xs text-muted-foreground">Personalizado</p>
-                    )}
-                  </div>
-                  <span>${item.totalPrice.toFixed(2)}</span>
-                </div>
+      {orderStatuses.map((status) => (
+        <TabsContent key={status} value={status}>
+          {isLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+          ) : data?.orders.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <AlertCircle className="mx-auto h-6 w-6 mb-2" />
+              <p>No hay pedidos {statusColors[status].label} en el día actual</p>
+            </div>
+          ) : (
+            <div className="space-y-4 h-full overflow-y-auto">
+              {data?.orders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  isExpanded={expandedOrder === order.id}
+                  onToggleExpand={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                  onUpdateStatus={(s) => updateOrderStatus(order.id, s)}
+                />
               ))}
             </div>
-            <Separator />
-            <div className="flex justify-between text-sm">
-              <span>Total con impuestos:</span>
-              <span className="font-medium">${(order.total * 1.1).toFixed(2)}</span>
-            </div>
-          </div>
-        )}
-
-        {nextStatus && (
-          <div className="mt-3 pt-3 border-t">
-            <Button
-              onClick={() => onUpdateStatus(nextStatus)}
-              size="sm"
-              className="w-full"
-              variant={order.status === "ready" ? "default" : "outline"}
-            >
-              {nextStatus === "preparing" && "Enviar a Cocina"}
-              {nextStatus === "ready" && "Marcar como Listo"}
-              {nextStatus === "delivered" && "Marcar como Entregado"}
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </TabsContent>
+      ))}
+    </Tabs>
   )
 }

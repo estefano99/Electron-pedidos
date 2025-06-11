@@ -16,10 +16,11 @@ export function OrderSummary({ product, includedIngredients, totalPrice }: Order
   // )
 
   // Si el ingrediente no esta en includedIngredients, entonces lo agrego a removedDefaultIngredients
-  const removedDefaultIngredients = product.ingredients.filter(
-    (defIng) => !includedIngredients.some((ing) => ing.id === defIng.ingredient.id),
-  )
-
+  const removeDefaultIngredients = (product: ProductWithIngredients, includedIngredients: Ingredient[]) => {
+    const filteredIngredients = product.ingredients.filter(ingredient => !ingredient.isMandatory)
+    return filteredIngredients.filter(ingredient => !includedIngredients.some(ing => ing.id === ingredient.ingredient.id))
+  }
+  const removedDefaultIngredients = removeDefaultIngredients(product, includedIngredients)
   return (
     <div className="space-y-4">
       <h3 className="font-semibold text-lg">Resumen del Pedido</h3>

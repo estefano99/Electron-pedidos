@@ -15,6 +15,7 @@ import { FormProvider, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 import { login } from "@/api/Auth"
+import { Loader } from "lucide-react"
 
 const formSchema = z.object({
   username: z.string().min(1, {
@@ -127,7 +128,7 @@ export function Login() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                  {mutation.isPending ? "Ingresando" : "Ingresar"}
+                  {mutation.isPending ? <span className="flex items-center gap-2"><Loader /> Ingresando</span> : "Ingresar"}
                 </Button>
               </form>
             </FormProvider>

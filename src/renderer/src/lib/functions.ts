@@ -1,3 +1,4 @@
+import { OrderStatus } from '@/types/order'
 import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 interface CustomPayload extends JwtPayload {
@@ -49,4 +50,12 @@ export const getTenantId = (): string | null => {
     localStorage.removeItem('AUTH_TOKEN')
     return null
   }
+}
+
+export const statusColors = {
+  [OrderStatus.PENDING]: { bg: 'bg-yellow-500 hover:bg-yellow-700', text: 'text-white', label: 'Pendiente' },
+  [OrderStatus.IN_PREPARATION]: { bg: 'bg-blue-500 hover:bg-blue-700', text: 'text-white', label: 'En preparación' },
+  [OrderStatus.READY]: { bg: 'bg-green-500 hover:bg-green-700', text: 'text-white', label: 'Preparado' },
+  [OrderStatus.DELIVERED]: { bg: 'bg-gray-500 hover:bg-gray-700', text: 'text-white', label: 'Delivery' },
+  [OrderStatus.CANCELLED]: { bg: 'bg-red-500 hover:bg-red-700', text: 'text-white', label: 'Cancelado' }
 }

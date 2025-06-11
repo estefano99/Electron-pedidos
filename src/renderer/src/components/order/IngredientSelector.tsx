@@ -32,19 +32,24 @@ export function IngredientSelector({ product, onClose, preselectedIncluded, pres
   const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([])
   const [excludedIngredients, setExcludedIngredients] = useState<Ingredient[]>([])
 
+  console.log(preselectedIncluded)
+
   // Initialize with default ingredients
   useEffect(() => {
     if (preselectedIncluded || preselectedExcluded) {
+      console.log('edicion')
       setSelectedIngredients(preselectedIncluded || [])
       setExcludedIngredients(preselectedExcluded || [])
     } else {
-      setSelectedIngredients(product.ingredients.map((pi) => pi.ingredient))
+      console.log('Creacion')
+      setSelectedIngredients(product.ingredients.filter((pi) => !pi.isMandatory).map((pi) => pi.ingredient))
       setExcludedIngredients([])
     }
-  }, [product, preselectedIncluded, preselectedExcluded])
+  }, [product])
 
 
   const handleIngredientToggle = (ingredient: Ingredient, included: boolean) => {
+
     if (included) {
       setSelectedIngredients((prev) => [...prev, ingredient])
       setExcludedIngredients((prev) => prev.filter((i) => i.id !== ingredient.id))
@@ -62,7 +67,7 @@ export function IngredientSelector({ product, onClose, preselectedIncluded, pres
     return basePrice
   }
 
-  console.log(selectedIngredients)
+  // console.log(selectedIngredients)
 
   const handleAddToOrder = () => {
     if (!currentOrder) {

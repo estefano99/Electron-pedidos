@@ -8,29 +8,28 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useOrder } from "@/hooks/use-order"
-import { Clock, User, ShoppingCart } from "lucide-react"
+import { User, ShoppingCart } from "lucide-react"
 import { Toaster } from "@/components/ui/sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { Order } from "@/types/order"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import { ModeToggle } from "@/components/mode-toggle"
 import HeaderPages from "@/components/HeaderPages"
 
 export default function Orders() {
   const { currentOrder, startNewOrder } = useOrder()
   const [customerName, setCustomerName] = useState("")
-  const [scheduledTime, setScheduledTime] = useState<Date | null>(new Date())
+  const [scheduledTime, setScheduledTime] = useState<Date | null>(null)
   const [activeTab, setActiveTab] = useState("current-order")
   const queryClient = useQueryClient()
 
   const allOrders = queryClient.getQueryData(["orders"]) as Order[] || []
-  console.log(allOrders)
 
   const handleNewOrder = () => {
     if (customerName.trim() && scheduledTime) {
       startNewOrder(customerName.trim(), scheduledTime)
       setCustomerName("")
+      setScheduledTime(null)
       setActiveTab("current-order")
     }
   }
@@ -84,7 +83,7 @@ export default function Orders() {
                     />
                   </div>
                 </div>
-                <Button onClick={handleNewOrder} className="w-full" disabled={!customerName.trim()}>
+                <Button onClick={handleNewOrder} className="w-full" disabled={!customerName.trim() || !scheduledTime}>
                   <User className="h-4 w-4 mr-2" />
                   Iniciar Pedido
                 </Button>
@@ -117,7 +116,7 @@ export default function Orders() {
                 </div>
 
                 <TabsContent value="current-order" className="flex-1 px-6 pb-6">
-                  <OrderPanel />
+                  <OrderPanel setCustomerName={setCustomerName} setScheduledTime={setScheduledTime} setActiveTab={setActiveTab} />
                 </TabsContent>
 
                 <TabsContent value="all-orders" className="flex-1 px-6 pb-6">

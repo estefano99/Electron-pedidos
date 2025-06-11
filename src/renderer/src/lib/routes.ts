@@ -10,6 +10,7 @@ export const tenantRoute = '/tenant'
 export const categoriesBack = 'categories'
 export const ingredientsBack = 'ingredients'
 export const productsBack = 'products'
+export const ordersBack = 'orders'
 
 // export const getTenantRoute = (tenantId: string, subroute: string = ''): string => {
 //   return `${tenantRoute}/${tenantId}${subroute}`;
