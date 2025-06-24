@@ -2,12 +2,10 @@ import ConfiguracionImpresion from "@/components/ConfiguracionImpresion"
 
 const Start = () => {
   const imprimirPara = async (destino: 'caja' | 'cocina') => {
-    console.log(destino)
     const config = JSON.parse(localStorage.getItem('impresoras_config') || '{}')
     const { impresora, modo } = config[destino] || {}
 
     console.log(`Imprimir en ${destino} con impresora "${impresora}" en modo "${modo}"`)
-
 
     if (!impresora || !modo) {
       alert(`⚠️ Faltan datos para imprimir en ${destino}, (¿Presiono en guardar configuracion?)`)
@@ -15,18 +13,20 @@ const Start = () => {
     }
 
     const payload = {
-      header: destino === 'caja' ? '🔥 BURGER APP' : '🧑‍🍳 COCINA',
-      text: destino === 'caja' ? 'Pedido #123\n- 1x Lomito' : '- 1x Lomito',
+      header: destino === 'caja' ? 'CAJA' : '🧑‍🍳 COCINA',
+      text: destino === 'caja' ? 'ITEMS...' : '- ITEMS...',
       footer: destino === 'caja' ? 'Gracias por tu compra!' : ''
     }
 
     if (modo === 'driver') {
       const result = await window.api.printTicket({ printerName: impresora, ...payload })
+      console.log(result)
       result.ok
         ? alert(`✅ Ticket enviado a ${destino}`)
         : alert(`❌ Error: ${result.error}`)
     } else {
       const result = await window.api.printToThermal(impresora, payload)
+      console.log(result)
       result.success
         ? alert(`✅ Ticket enviado a ${destino}`)
         : alert(`❌ Error: ${result.error}`)

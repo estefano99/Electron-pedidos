@@ -1,26 +1,20 @@
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useOrder } from "@/hooks/use-order"
 import { OrderStatus } from "@/types/order"
 import { useQuery } from "@tanstack/react-query"
 import { GetOrdersResponse, getOrdersTodayByStatus } from "@/api/OrderApi"
 import { OrderCard } from "./orderCard/OrderCard"
 import { AlertCircle } from "lucide-react"
-import { statusColors } from "@/lib/functions"
-
-const orderStatuses: OrderStatus[] = [OrderStatus.PENDING, OrderStatus.IN_PREPARATION, OrderStatus.READY, OrderStatus.DELIVERED, OrderStatus.CANCELLED]
+import { orderStatuses, statusColors } from "@/lib/functions"
 
 export function OrderHistory() {
-  const { updateOrderStatus } = useOrder()
   const [activeFilter, setActiveFilter] = useState<OrderStatus>(OrderStatus.PENDING)
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
 
-  const { data, isLoading } = useQuery<GetOrdersResponse>({
+  const { data, isLoading, isError } = useQuery<GetOrdersResponse>({
     queryKey: ["ordersTodayByStatus", activeFilter],
     queryFn: () => getOrdersTodayByStatus(activeFilter),
   });
-
-  console.log(activeFilter)
 
   return (
     <Tabs value={activeFilter} onValueChange={(val) => setActiveFilter(val as OrderStatus)}>
@@ -31,6 +25,13 @@ export function OrderHistory() {
           </TabsTrigger>
         ))}
       </TabsList>
+
+      {isError && (
+        <div className="text-center py-8 text-muted-foreground">
+          <AlertCircle className="mx-auto h-6 w-6 mb-2" />
+          <p>Error al cargar los pedidos</p>
+        </div>
+      )}
 
       {orderStatuses.map((status) => (
         <TabsContent key={status} value={status}>
@@ -49,7 +50,6 @@ export function OrderHistory() {
                   order={order}
                   isExpanded={expandedOrder === order.id}
                   onToggleExpand={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                  onUpdateStatus={(s) => updateOrderStatus(order.id, s)}
                 />
               ))}
             </div>

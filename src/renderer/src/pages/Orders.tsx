@@ -97,7 +97,7 @@ export default function Orders() {
                   <TabsList className="grid w-[90%] grid-cols-2 mt-4">
                     <TabsTrigger value="current-order" className="flex items-center gap-2">
                       <ShoppingCart className="h-4 w-4" />
-                      Pedido Actual
+                      <p className="text-xs md:text-sm">Pedido Actual</p>
                       {currentOrder && (
                         <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
                           {currentOrder.items.length}
@@ -105,7 +105,7 @@ export default function Orders() {
                       )}
                     </TabsTrigger>
                     <TabsTrigger value="all-orders" className="flex items-center gap-2">
-                      Todos los Pedidos
+                      <p className="text-xs md:text-sm"> Todos los Pedidos </p>
                       {allOrders.length > 0 && (
                         <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">
                           {allOrders.length}

@@ -5,7 +5,8 @@ import {
   Pizza,
   ChefHat,
   Tags,
-  ClipboardList
+  ClipboardList,
+  Cog
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarNav from "./SidebarNav";
@@ -14,7 +15,7 @@ import SidebarLink from "./SidebarLink";
 
 const Sidebar = () => {
   return (
-    <div className="h-14 absolute md:relative md:h-full w-1/5 2xl:w-[22%] md:border-r md:bg-muted/40 md:block">
+    <div className="h-14 absolute md:relative md:h-full w-1/6 2xl:w-[20%] md:border-r md:bg-muted/40 md:block">
       <div className="hidden md:flex h-full flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <p className="flex items-center gap-2 font-semibold">
@@ -30,6 +31,7 @@ const Sidebar = () => {
               { title: "Productos", icon: Pizza },
               { title: "Ingredientes", icon: ChefHat },
               { title: "Pedidos", icon: ClipboardList },
+              { title: "Configuracion", icon: Cog },
             ]}
           />
         </div>
@@ -64,6 +66,7 @@ const Sidebar = () => {
                   { title: "Productos", icon: Pizza },
                   { title: "Ingredientes", icon: ChefHat },
                   { title: "Pedidos", icon: ClipboardList },
+                  { title: "Configuracion", icon: Cog },
                 ]}
               />
             </SheetContent>

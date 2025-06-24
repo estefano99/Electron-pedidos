@@ -49,9 +49,6 @@ export function useOrder() {
     })
   }
 
-  const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
-  console.log(order)
-
   const removeItemFromCurrentOrder = (itemId: string) => {
     const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
     if (!order) return
@@ -89,15 +86,6 @@ export function useOrder() {
     queryClient.removeQueries({ queryKey: ['currentOrder'] })
   }
 
-  const updateOrderStatus = (orderId: string, status: OrderStatus) => {
-    const orders = queryClient.getQueryData<NewOrder[]>(['allOrders'])
-    if (!orders) return
-
-    const updated = orders.map((order) => (order.id === orderId ? { ...order, status } : order))
-
-    queryClient.setQueryData(['allOrders'], updated)
-  }
-
   const clearCurrentOrder = () => {
     queryClient.removeQueries({ queryKey: ['currentOrder'] })
   }
@@ -109,7 +97,6 @@ export function useOrder() {
     addItemToCurrentOrder,
     removeItemFromCurrentOrder,
     completeCurrentOrder,
-    updateOrderStatus,
     clearCurrentOrder,
     editItemInCurrentOrder
   }

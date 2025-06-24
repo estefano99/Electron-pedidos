@@ -36,10 +36,6 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
     formData.append('ingredients', JSON.stringify(product.ingredients))
     formData.append('image', product.imgUrl)
 
-    // formData.forEach((value, key) => {
-    //   console.log(key, value)
-    // })
-
     const { data } = await clienteAxios.post<Product>(
       `${tenantRoute}/${tenantId}/${productsBack}`,
       formData

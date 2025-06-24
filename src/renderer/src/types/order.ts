@@ -34,6 +34,7 @@ export interface Order {
   source: OrderSource
   userId?: string
   tenantId: string
+  tenantDisplayName?: string
   createdAt: Date
 }
 

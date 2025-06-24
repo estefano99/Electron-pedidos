@@ -23,12 +23,13 @@ const getOrdersTodayByStatus = async (status: OrderStatus): Promise<GetOrdersRes
   }
 }
 
-const createOrder = async (order: NewOrder): Promise<NewOrder> => {
+const createOrder = async (order: NewOrder): Promise<Order> => {
   const tenantId = getTenantId()
+  //DTO para el backend
   const orderForBackend = {
     ...order,
     items: order.items.map((item) => ({
-      productId: item.product.id, // ✅ ahora sí
+      productId: item.product.id,
       quantity: 1,
       ingredients: [
         ...item.includedIngredients.map((i) => ({
@@ -44,7 +45,7 @@ const createOrder = async (order: NewOrder): Promise<NewOrder> => {
   }
 
   try {
-    const { data }: { data: NewOrder } = await clienteAxios.post(
+    const { data }: { data: Order } = await clienteAxios.post(
       `${tenantRoute}/${tenantId}/${ordersBack}`,
       orderForBackend
     )
@@ -58,4 +59,21 @@ const createOrder = async (order: NewOrder): Promise<NewOrder> => {
   }
 }
 
-export { createOrder, getOrdersTodayByStatus }
+const updateStatusOrder = async (orderId: string, status: OrderStatus): Promise<Order> => {
+  const tenantId = getTenantId()
+  try {
+    const { data }: { data: Order } = await clienteAxios.patch(
+      `${tenantRoute}/${tenantId}/${ordersBack}/${orderId}`,
+      { status }
+    )
+    return data
+  } catch (error) {
+    console.log('[ERROR] updateStatusOrder: ', error)
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.error)
+    }
+    throw error
+  }
+}
+
+export { createOrder, getOrdersTodayByStatus, updateStatusOrder }

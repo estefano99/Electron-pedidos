@@ -3,41 +3,55 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Clock, User, ChefHat, Eye } from "lucide-react"
-import { Order, OrderStatus } from "@/types/order"
+import { Order } from "@/types/order"
 import { formatPrice, statusColors } from "@/lib/functions"
+import { DropdownStatus } from "../DropdownStatus"
 
 interface OrderCardProps {
   order: Order
   isExpanded: boolean
   onToggleExpand: () => void
-  onUpdateStatus: (status: OrderStatus) => void
 }
-export function OrderCard({ order, isExpanded, onToggleExpand, onUpdateStatus }: OrderCardProps) {
-  console.log(order)
+export function OrderCard({ order, isExpanded, onToggleExpand }: OrderCardProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
+          {/* IZQUIERDA: Nombre, código y hora */}
           <div className="space-y-1">
             <CardTitle className="text-lg flex items-center gap-2">
               <User className="h-4 w-4" />
               {order.customerName || "No hay nombre"}
             </CardTitle>
             <div className="text-sm text-muted-foreground space-y-0.5">
-              <p className="flex items-center gap-1"><ChefHat className="h-4 w-4" /> #{order.code}</p>
               <p className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />{" "}
+                <ChefHat className="h-4 w-4" /> #{order.code}
+              </p>
+              <p className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
                 {order?.scheduledTime
                   ? new Date(order.scheduledTime).toLocaleTimeString()
                   : 'No hay tiempo programado'}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge className={`${statusColors[order.status].bg} ${statusColors[order.status].text} `}>{statusColors[order.status].label}</Badge>
-            <Button variant="ghost" size="icon" onClick={onToggleExpand} aria-label={isExpanded ? "Ocultar detalles del pedido" : "Ver detalles del pedido"}>
-              <Eye className="h-4 w-4" />
-            </Button>
+
+          {/* DERECHA: Badge de estado, Dropdown y botón */}
+          <div className="flex flex-col items-end gap-2">
+            <Badge className={`${statusColors[order.status].bg} ${statusColors[order.status].text}`}>
+              {statusColors[order.status].label}
+            </Badge>
+            <div className="flex items-center gap-2">
+              <DropdownStatus currentStatus={order.status} orderId={order.id} />
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onToggleExpand}
+                aria-label={isExpanded ? "Ocultar detalles del pedido" : "Ver detalles del pedido"}
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -72,21 +86,6 @@ export function OrderCard({ order, isExpanded, onToggleExpand, onUpdateStatus }:
             </div>
           </div>
         )}
-
-        {/* {nextStatus && (
-          <div className="mt-3 pt-3 border-t">
-          <Button
-          onClick={() => onUpdateStatus(nextStatus)}
-          size="sm"
-          className="w-full"
-          variant={order.status === "ready" ? "default" : "outline"}
-          >
-          {nextStatus === "preparing" && "Enviar a Cocina"}
-          {nextStatus === "ready" && "Marcar como Listo"}
-          {nextStatus === "delivered" && "Marcar como Entregado"}
-          </Button>
-          </div>
-          )} */}
       </CardContent>
     </Card>
   )

@@ -18,7 +18,6 @@ export function OrderItemCard({ item, onRemove, onEdit }: Props) {
   const removed = item.excludedIngredients.filter(
     (ex) => !item.includedIngredients.some((ing) => ing.id === ex.id)
   )
-  console.log(item)
 
   return (
     <Card>

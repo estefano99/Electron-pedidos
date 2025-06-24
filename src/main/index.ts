@@ -37,7 +37,7 @@ function createWindow(): void {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src *; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src 'self' data: blob: https://res.cloudinary.com; style-src * 'unsafe-inline';"
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://ipapi.co http://localhost:4000; img-src 'self' data: blob: https://res.cloudinary.com; style-src 'self' 'unsafe-inline';"
         ]
       }
     })
@@ -139,6 +139,8 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('print-ticket', async (_, data) => {
+    console.log('entro a print-ticket')
+    console.log(data)
     const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
     if (!win) return { ok: false, error: 'No hay ventana activa' }
 
@@ -182,6 +184,29 @@ app.whenReady().then(() => {
           } else {
             resolve({ ok: false, error: failureReason })
           }
+        }
+      )
+    })
+  })
+
+  ipcMain.handle('print-order-ticket', async (_, { printerName, html }) => {
+    if (!printerName || !html) {
+      return { ok: false, error: 'Faltan datos para imprimir el ticket de la orden' }
+    }
+
+    const printWin = new BrowserWindow({ show: false })
+    await printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
+
+    return new Promise((resolve) => {
+      printWin.webContents.print(
+        {
+          silent: true,
+          deviceName: printerName,
+          printBackground: false
+        },
+        (success, failureReason) => {
+          printWin.close()
+          resolve(success ? { ok: true } : { ok: false, error: failureReason })
         }
       )
     })

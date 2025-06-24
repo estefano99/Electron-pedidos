@@ -23,6 +23,10 @@ declare global {
         footer?: string
         printerName?: string
       }) => Promise<{ ok: boolean; error?: string }>
+      printOrderTicket: (data: {
+        html: string
+        printerName: string
+      }) => Promise<{ ok: boolean; error?: string }>
     }
   }
 }

@@ -7,7 +7,7 @@ import { OrderItemCard } from "./OrderItemCard"
 import { useState } from "react"
 import { NewOrder, OrderItem } from "@/types/order"
 import { IngredientSelector } from "./IngredientSelector"
-import { formatPrice } from "@/lib/functions"
+import { formatPrice, imprimirTicket } from "@/lib/functions"
 import { Badge } from "../ui/badge"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { createOrder } from "@/api/OrderApi"
@@ -32,13 +32,15 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
       console.log(error);
       toast.error("Error al crear el pedido");
     },
-    onSuccess: () => {
+    onSuccess: (response) => {
       toast.success("Pedido creado exitosamente");
       queryClient.removeQueries({ queryKey: ['currentOrder'] })
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       setCustomerName("")
       setScheduledTime(null)
       setActiveTab("current-order")
+      //Imprime la orden
+      imprimirTicket(response)
     },
   });
 
