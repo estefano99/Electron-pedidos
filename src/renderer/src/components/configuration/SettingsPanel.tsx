@@ -97,7 +97,7 @@ export function SettingsPanel() {
           "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
       });
     },
-    onSuccess: (respuesta) => {
+    onSuccess: () => {
       toast({
         title: "Configuraacion seteada con exito",
         description: (
@@ -175,8 +175,8 @@ export function SettingsPanel() {
         instagramUrl: data.instagramUrl ?? "",
         phone: data.phone ?? "",
         address: data.address ?? "",
-        latitude: data.latitude ?? "",
-        longitude: data.longitude ?? "",
+        latitude: String(data.latitude) ?? "",
+        longitude: String(data.longitude) ?? "",
         imageFile: undefined,
         suscriptionType: data.suscriptionType ?? suscriptionType.BASIC,
       });

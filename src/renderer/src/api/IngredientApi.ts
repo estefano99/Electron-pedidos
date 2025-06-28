@@ -5,7 +5,8 @@ import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 
 const getIngredients = async (): Promise<GetIngredientResponse> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
+  console.log("🚀 ~ getIngredients ~ tenantId:", tenantId)
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ingredientsBack}`)
     return data
@@ -19,7 +20,7 @@ const getIngredients = async (): Promise<GetIngredientResponse> => {
 }
 
 const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.post(
       `${tenantRoute}/${tenantId}/${ingredientsBack}`,
@@ -36,7 +37,7 @@ const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient>
 }
 
 const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
 
   const { id, description } = ingredient
   try {
@@ -54,7 +55,7 @@ const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
 }
 
 const deleteIngredient = async (ingredient: Ingredient) => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
 
   const { id } = ingredient
   try {

@@ -7,7 +7,8 @@ const api = {
   printToThermal: (printerName: string, data: any) =>
     ipcRenderer.invoke('print-to-thermal', printerName, data),
   printTicket: (data: any) => ipcRenderer.invoke('print-ticket', data),
-  printOrderTicket: (data: any) => ipcRenderer.invoke('print-order-ticket', data)
+  printOrderTicket: (data: any) => ipcRenderer.invoke('print-order-ticket', data),
+  getTenantId: () => ipcRenderer.invoke('get-tenant-id')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

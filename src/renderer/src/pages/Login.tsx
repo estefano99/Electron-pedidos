@@ -10,12 +10,15 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { FormProvider, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 import { login } from "@/api/Auth"
-import { Loader } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import { getConfigurationPublic } from "@/api/ConfigurationApi"
+import { RestaurantSettingsPublic } from "@/types/configuration"
+import { startRoute } from "@/lib/routes"
 
 const formSchema = z.object({
   username: z.string().min(1, {
@@ -35,6 +38,12 @@ export function Login() {
     },
   })
 
+  const { data } = useQuery<RestaurantSettingsPublic>({
+    queryKey: ["settings"],
+    queryFn: getConfigurationPublic,
+  });
+  console.log("🚀 ~ Login ~ data:", data)
+
   const navigate = useNavigate()
 
   const mutation = useMutation({
@@ -49,8 +58,7 @@ export function Login() {
       })
     },
     onSuccess: () => {
-      console.log("success")
-      navigate("/inicio")
+      navigate(startRoute)
     },
   })
 
@@ -64,12 +72,17 @@ export function Login() {
       <div className="flex-1 bg-muted hidden md:block relative">
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="text-center space-y-4">
-            <img
-              src="/placeholder.svg?height=400&width=600"
-              alt="Imagen del local comercial"
-              className="rounded-lg shadow-lg mx-auto w-[600px] h-[400px] object-cover"
-            />
-            <h2 className="text-2xl font-bold">[Nombre del local]</h2>
+            {data ? (
+              <img
+                src={data.logoUrl}
+                alt="Imagen del local comercial"
+                loading="lazy"
+                className="rounded-lg shadow-lg mx-auto max-w-[90%] max-h-[400px] object-contain bg-white"
+              />
+            ) : (
+              <div className="w-[600px] h-[400px] bg-gray-200 animate-pulse rounded-lg mx-auto" />
+            )}
+            <h2 className="text-2xl font-bold">{data?.displayName || "No se encontro el nombre"}</h2>
             <p className="text-muted-foreground">Sistema de Pedidos</p>
           </div>
         </div>
@@ -80,11 +93,11 @@ export function Login() {
         {/* Logo para dispositivos móviles */}
         <div className="mb-6 text-center md:hidden">
           <img
-            src="/placeholder.svg?height=150&width=150"
+            src={data?.logoUrl}
             alt="Logo del local comercial"
             className="rounded-full shadow-md mx-auto w-[150px] h-[150px] object-cover"
           />
-          <h2 className="text-xl font-bold mt-3">[Nombre del local]</h2>
+          <h2 className="text-xl font-bold mt-3">{data?.displayName || "No se encontro el nombre"}</h2>
           <p className="text-sm text-muted-foreground">Sistema de Pedidos</p>
         </div>
 
@@ -128,7 +141,9 @@ export function Login() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={mutation.isPending}>
-                  {mutation.isPending ? <span className="flex items-center gap-2"><Loader /> Ingresando</span> : "Ingresar"}
+                  {mutation.isPending ? <span className="flex items-center gap-2">
+                    <Loader2 className="animate-spin" />
+                    Ingresando</span> : "Ingresar"}
                 </Button>
               </form>
             </FormProvider>

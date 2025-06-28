@@ -6,7 +6,6 @@ import { isAxiosError } from 'axios'
 const login = async (usuario: UserType) => {
   try {
     const { data } = await clienteAxios.post(loginRoute, usuario)
-    console.log(data)
     localStorage.setItem('AUTH_TOKEN', data.token)
     return data
   } catch (error) {

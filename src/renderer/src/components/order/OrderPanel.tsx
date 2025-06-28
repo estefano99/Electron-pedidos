@@ -2,7 +2,7 @@ import { useOrder } from "@/hooks/use-order"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Clock, Loader, User } from "lucide-react"
+import { Clock, Loader2, User } from "lucide-react"
 import { OrderItemCard } from "./OrderItemCard"
 import { useState } from "react"
 import { NewOrder, OrderItem } from "@/types/order"
@@ -118,7 +118,7 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
 
           <div className="space-y-2">
             <Button onClick={handleCompleteOrder} disabled={mutation.isPending} className="w-full" size="lg">
-              {mutation.isPending ? <span className="flex items-center gap-2"><Loader /> Creando Pedido</span> : <span>Confirmar pedido</span>}
+              {mutation.isPending ? <span className="flex items-center gap-2"><Loader2 className="animate-spin" /> Creando Pedido</span> : <span>Confirmar pedido</span>}
             </Button>
             <p className="text-xs text-muted-foreground text-center">
               El pedido se enviará a cocina

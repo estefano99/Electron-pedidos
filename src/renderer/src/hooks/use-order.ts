@@ -17,8 +17,8 @@ export function useOrder() {
 
   const allOrders = queryClient.getQueryData<NewOrder[]>(['allOrders']) || []
 
-  const startNewOrder = (customerName: string, scheduledTime: Date | null) => {
-    const tenantId = getTenantId()
+  const startNewOrder = async (customerName: string, scheduledTime: Date | null) => {
+    const tenantId = await getTenantId()
     if (!tenantId) throw new Error('Tenant ID no encontrado')
 
     const newOrder: NewOrder = {

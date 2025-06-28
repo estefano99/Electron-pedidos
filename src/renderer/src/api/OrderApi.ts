@@ -10,7 +10,7 @@ export type GetOrdersResponse = {
 }
 
 const getOrdersTodayByStatus = async (status: OrderStatus): Promise<GetOrdersResponse> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ordersBack}/today/${status}`)
     return data
@@ -24,7 +24,7 @@ const getOrdersTodayByStatus = async (status: OrderStatus): Promise<GetOrdersRes
 }
 
 const createOrder = async (order: NewOrder): Promise<Order> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   //DTO para el backend
   const orderForBackend = {
     ...order,
@@ -60,7 +60,7 @@ const createOrder = async (order: NewOrder): Promise<Order> => {
 }
 
 const updateStatusOrder = async (orderId: string, status: OrderStatus): Promise<Order> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data }: { data: Order } = await clienteAxios.patch(
       `${tenantRoute}/${tenantId}/${ordersBack}/${orderId}`,

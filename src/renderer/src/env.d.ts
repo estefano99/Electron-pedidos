@@ -1,5 +1,8 @@
 /// <reference types="vite/client" />
 
+// Esa interfaz que estás editando (en global.d.ts o un archivo similar) es solo para TypeScript del renderer, es decir, del front de Electron.
+// Sirve para que el auto completado, el chequeo de tipos y el TS compiler sepan que existe window.api.(metodo)) y cómo se usa.
+
 export {}
 
 declare global {
@@ -27,6 +30,7 @@ declare global {
         html: string
         printerName: string
       }) => Promise<{ ok: boolean; error?: string }>
+      getTenantId: () => Promise<string>
     }
   }
 }

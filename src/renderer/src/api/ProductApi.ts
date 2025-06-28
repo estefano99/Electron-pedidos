@@ -10,7 +10,7 @@ import { productsBack, tenantRoute } from '@/lib/routes'
 import { getTenantId } from '@/lib/functions'
 
 const getProducts = async (): Promise<ProductWithIngredients[]> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${productsBack}`)
     return data
@@ -25,7 +25,7 @@ const getProducts = async (): Promise<ProductWithIngredients[]> => {
 
 const createProduct = async (product: CreateProductForm): Promise<Product> => {
   try {
-    const tenantId = getTenantId()
+    const tenantId = await getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -53,7 +53,7 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
 const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
   console.log(product)
   try {
-    const tenantId = getTenantId()
+    const tenantId = await getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -79,7 +79,7 @@ const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
 }
 
 const deleteProduct = async (product: ProductWithIngredients): Promise<Product> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.delete(
       `${tenantRoute}/${tenantId}/${productsBack}/${product.id}`

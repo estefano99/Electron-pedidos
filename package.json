@@ -1,5 +1,5 @@
 {
-  "name": "carrito-burgers",
+  "name": "food-magaments",
   "version": "1.0.0",
   "description": "An Electron application with React and TypeScript",
   "main": "./out/main/index.js",
@@ -19,6 +19,27 @@
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.food.magaments",
+    "productName": "Carrito Burgers",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "estefano99",
+        "repo": "Electron-pedidos"
+      }
+    ],
+    "files": [
+      "dist/",
+      {
+        "from": "src/main/config/",
+        "to": "config",
+        "filter": [
+          "tenant.json"
+        ]
+      }
+    ]
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",

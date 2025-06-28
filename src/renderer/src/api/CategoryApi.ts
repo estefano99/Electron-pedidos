@@ -5,7 +5,7 @@ import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 
 const getCategories = async (): Promise<GetCategoriesResponse> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${categoriesBack}`)
     return data
@@ -19,7 +19,7 @@ const getCategories = async (): Promise<GetCategoriesResponse> => {
 }
 
 const createCategory = async (category: categoryForm): Promise<category> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   try {
     const { data } = await clienteAxios.post(
       `${tenantRoute}/${tenantId}/${categoriesBack}`,
@@ -36,7 +36,7 @@ const createCategory = async (category: categoryForm): Promise<category> => {
 }
 
 const editCategory = async (category: category): Promise<category> => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   const { id, description } = category
 
   try {
@@ -54,7 +54,7 @@ const editCategory = async (category: category): Promise<category> => {
 }
 
 const deleteCategory = async (category: category) => {
-  const tenantId = getTenantId()
+  const tenantId = await getTenantId()
   const { id } = category
   try {
     const { data } = await clienteAxios.delete(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`)

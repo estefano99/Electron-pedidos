@@ -50,42 +50,55 @@ export const formatPrice = (price: number): string => {
   }).format(price)
 }
 
-export const getToken = (): JwtPayload | null => {
-  const token = localStorage.getItem('AUTH_TOKEN')
-  if (!token) return null
+// export const getTenantId = (): string | null => {
+//   const token = localStorage.getItem('AUTH_TOKEN')
+//   if (!token) return null
 
-  try {
-    const decoded = jwtDecode<JwtPayload>(token)
-    if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
+//   try {
+//     const decoded = jwtDecode<CustomPayload>(token)
+
+//     if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
+//       localStorage.removeItem('AUTH_TOKEN')
+//       return null
+//     }
+
+//     return decoded.tenantId || null
+//   } catch (error) {
+//     console.error('Error al decodificar el token:', error)
+//     localStorage.removeItem('AUTH_TOKEN')
+//     return null
+//   }
+// }
+
+export const getTenantId = async (): Promise<string | null> => {
+  // 1. Intentar obtener desde token JWT
+  const token = localStorage.getItem('AUTH_TOKEN')
+  if (token) {
+    try {
+      const decoded = jwtDecode<CustomPayload>(token)
+      if (!decoded.exp || decoded.exp * 1000 > Date.now()) {
+        return decoded.tenantId || null
+      } else {
+        localStorage.removeItem('AUTH_TOKEN')
+      }
+    } catch {
       localStorage.removeItem('AUTH_TOKEN')
+    }
+  }
+
+  // 2. Si no hay token válido, usar el tenant desde Electron
+  if (window.api?.getTenantId) {
+    try {
+      const tenantId = await window.api.getTenantId()
+      console.log("🚀 ~ getTenantId ~ tenantId:", tenantId)
+      return tenantId
+    } catch (error) {
+      console.error('[ERROR] getTenantIdAsync (Electron):', error)
       return null
     }
-    return decoded
-  } catch (error) {
-    console.error('Error al decodificar el token:', error)
-    localStorage.removeItem('AUTH_TOKEN')
-    return null
   }
-}
 
-export const getTenantId = (): string | null => {
-  const token = localStorage.getItem('AUTH_TOKEN')
-  if (!token) return null
-
-  try {
-    const decoded = jwtDecode<CustomPayload>(token)
-
-    if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem('AUTH_TOKEN')
-      return null
-    }
-
-    return decoded.tenantId || null
-  } catch (error) {
-    console.error('Error al decodificar el token:', error)
-    localStorage.removeItem('AUTH_TOKEN')
-    return null
-  }
+  return null
 }
 
 export const imprimirTicket = async (order: Order) => {

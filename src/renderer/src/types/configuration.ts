@@ -11,6 +11,9 @@ export type RestaurantSettings = {
   logoUrl?: string
 }
 
+//Type para la data del login, osea sin validacion del middleware del back
+export type RestaurantSettingsPublic = Omit<RestaurantSettings, 'id' | 'phone' | 'suscriptionType' | 'imageFile'>
+
 export enum suscriptionType {
   DEMO = 'DEMO',
   BASIC = 'BASIC',

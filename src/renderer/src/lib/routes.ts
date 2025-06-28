@@ -14,6 +14,7 @@ export const productsBack = 'products'
 export const ordersBack = 'orders'
 export const orderCreateLocal = 'create-local'
 export const configurationBack = 'configuration'
+export const configurationPublicBack = 'configuration-public'
 
 // export const getTenantRoute = (tenantId: string, subroute: string = ''): string => {
 //   return `${tenantRoute}/${tenantId}${subroute}`;

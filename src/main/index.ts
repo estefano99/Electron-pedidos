@@ -2,6 +2,8 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { getTenantIdFromDisk } from './utils/tenant'
+import { autoUpdater } from 'electron-updater'
 
 const ThermalPrinter = require('node-thermal-printer').printer
 const PrinterTypes = require('node-thermal-printer').types
@@ -69,7 +71,6 @@ app.whenReady().then(() => {
     if (!win) throw new Error('No hay ventana activa.')
 
     const printers = await win.webContents.getPrintersAsync()
-    console.log(printers)
     if (!printers || !Array.isArray(printers)) {
       throw new Error('No se pudo acceder a las impresoras.')
     }
@@ -79,7 +80,6 @@ app.whenReady().then(() => {
 
   ipcMain.handle('print-to-thermal', async (_, printerName, data) => {
     try {
-      console.log(printerName)
       const printer = new ThermalPrinter({
         type: PrinterTypes.EPSON,
         interface: `usb:${printerName}`,
@@ -138,9 +138,14 @@ app.whenReady().then(() => {
     }
   })
 
+  //Funcion que obtiene el tenant seteado en main/config/tenant.json
+  ipcMain.handle('get-tenant-id', () => {
+    const tenantId = getTenantIdFromDisk()
+    if (!tenantId) throw new Error('No se encontro el tenantId')
+    return tenantId
+  })
+
   ipcMain.handle('print-ticket', async (_, data) => {
-    console.log('entro a print-ticket')
-    console.log(data)
     const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
     if (!win) return { ok: false, error: 'No hay ventana activa' }
 
@@ -216,6 +221,7 @@ app.whenReady().then(() => {
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    autoUpdater.checkForUpdatesAndNotify()
   })
 })
 
