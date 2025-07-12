@@ -50,56 +50,56 @@ export const formatPrice = (price: number): string => {
   }).format(price)
 }
 
-// export const getTenantId = (): string | null => {
-//   const token = localStorage.getItem('AUTH_TOKEN')
-//   if (!token) return null
-
-//   try {
-//     const decoded = jwtDecode<CustomPayload>(token)
-
-//     if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
-//       localStorage.removeItem('AUTH_TOKEN')
-//       return null
-//     }
-
-//     return decoded.tenantId || null
-//   } catch (error) {
-//     console.error('Error al decodificar el token:', error)
-//     localStorage.removeItem('AUTH_TOKEN')
-//     return null
-//   }
-// }
-
-export const getTenantId = async (): Promise<string | null> => {
-  // 1. Intentar obtener desde token JWT
+export const getTenantId = (): string | null => {
   const token = localStorage.getItem('AUTH_TOKEN')
-  if (token) {
-    try {
-      const decoded = jwtDecode<CustomPayload>(token)
-      if (!decoded.exp || decoded.exp * 1000 > Date.now()) {
-        return decoded.tenantId || null
-      } else {
-        localStorage.removeItem('AUTH_TOKEN')
-      }
-    } catch {
-      localStorage.removeItem('AUTH_TOKEN')
-    }
-  }
+  if (!token) return null
 
-  // 2. Si no hay token válido, usar el tenant desde Electron
-  if (window.api?.getTenantId) {
-    try {
-      const tenantId = await window.api.getTenantId()
-      console.log("🚀 ~ getTenantId ~ tenantId:", tenantId)
-      return tenantId
-    } catch (error) {
-      console.error('[ERROR] getTenantIdAsync (Electron):', error)
+  try {
+    const decoded = jwtDecode<CustomPayload>(token)
+
+    if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
+      localStorage.removeItem('AUTH_TOKEN')
       return null
     }
-  }
 
-  return null
+    return decoded.tenantId || null
+  } catch (error) {
+    console.error('Error al decodificar el token:', error)
+    localStorage.removeItem('AUTH_TOKEN')
+    return null
+  }
 }
+
+// export const getTenantId = async (): Promise<string | null> => {
+//   // 1. Intentar obtener desde token JWT
+//   const token = localStorage.getItem('AUTH_TOKEN')
+//   if (token) {
+//     try {
+//       const decoded = jwtDecode<CustomPayload>(token)
+//       if (!decoded.exp || decoded.exp * 1000 > Date.now()) {
+//         return decoded.tenantId || null
+//       } else {
+//         localStorage.removeItem('AUTH_TOKEN')
+//       }
+//     } catch {
+//       localStorage.removeItem('AUTH_TOKEN')
+//     }
+//   }
+
+//   // 2. Si no hay token válido, usar el tenant desde Electron
+//   if (window.api?.getTenantId) {
+//     try {
+//       const tenantId = await window.api.getTenantId()
+//       console.log('🚀 ~ getTenantId ~ tenantId:', tenantId)
+//       return tenantId
+//     } catch (error) {
+//       console.error('[ERROR] getTenantIdAsync (Electron):', error)
+//       return null
+//     }
+//   }
+
+//   return null
+// }
 
 export const imprimirTicket = async (order: Order) => {
   const config = JSON.parse(localStorage.getItem('impresoras_config') || '{}')
@@ -107,15 +107,15 @@ export const imprimirTicket = async (order: Order) => {
 
   if (!impresora || !modo) {
     console.warn('⚠️ No hay configuración de impresora para cocina')
-    return
+    throw new Error('No hay configuración de impresora')
   }
-
   const html = generarHTMLTicket(order)
 
   const result = await window.api.printOrderTicket({ printerName: impresora, html })
 
   if (!result.ok) {
     console.error(`Error al imprimir: ${result.error}`)
+    throw new Error(`Error al imprimir: ${result.error}`)
   }
 }
 
@@ -124,48 +124,58 @@ function generarHTMLTicket(data: Order): string {
     ? new Date(data.scheduledTime).toLocaleTimeString()
     : 'Sin horario'
 
+  const line = '--------------'
+  const doubleLine = '=============='
+
+  const productos = data.items
+    .map((item) => {
+      const sinIngredientes =
+        item.excludedIngredients.length > 0
+          ? item.excludedIngredients.map((i) => ` SIN: ${i.description}`).join('<br/>')
+          : ''
+
+      // 👇 Alineamos el precio a la derecha con puntos intermedios
+      const nombreYPrecio =
+        `${'-'} ${item.product.name}`.padEnd(15, '.') + ` ${item?.unitPrice ? formatPrice(item?.unitPrice) : "Sin precio"}`
+
+      return `
+      <div style="margin-bottom: 6px;">
+        ${nombreYPrecio}<br/>
+        ${sinIngredientes}
+      </div>
+    `
+    })
+    .join('')
+
   return `
- <div style="font-family: monospace; padding: 8px; font-size: 12px;">
-    <div style="text-align: center; margin-bottom: 8px;">
-      <h2 style="margin: 0; font-size: 16px;">${data.tenantDisplayName}</h2>
-      <p style="margin: 2px 0;">Cliente: <strong>${data.customerName ?? 'Sin nombre'}</strong></p>
-      <p style="margin: 2px 0;">Entrega: ${hora}</p>
+    <div style="font-family: monospace; font-size: 13px; padding: 6px;">
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+      <div style="text-align: center; margin-bottom: 8px;">
+        <h2 style="margin: 0; font-size: 18px;">${data.tenantDisplayName?.toUpperCase() || 'LOCAL SIN NOMBRE'}</h2>
+        <p style="margin: 2px 0;">Cliente: <strong>${data.customerName ?? 'Sin nombre'}</strong></p>
+        <p style="margin: 2px 0;">Entrega: ${hora}</p>
+      </div>
+
+      <div style="text-align: center; font-size: 12px;">
+        <div>${line}</div>
+        <div><strong>Productos: ${data.items.length}</strong></div>
+        <div>${line}</div>
+      </div>
+
+      <div style="margin: 12px 0;">
+        ${productos}
+      </div>
+
+      <div style="text-align: center;">
+        <div>${doubleLine}</div>
+        <div style="font-size: 16px;"><strong>TOTAL: ${formatPrice(data.total)}</strong></div>
+        <div>${doubleLine}</div>
+        <div style="margin-top: 10px;">${new Date().toLocaleString()}</div>
+      </div>
     </div>
-
-    <hr style="border-top: 1px dashed black;" />
-
-    <p><strong>Productos: ${data.items.length}</strong></p>
-
-    <hr style="border-top: 1px dashed black;" />
-
-    <div>
-      ${data.items
-        .map(
-          (item) => `
-        <div style="margin-bottom: 6px;">
-          <p style="margin: 0;"><strong> ${item.product.name}</strong></p>
-          ${
-            item.excludedIngredients.length > 0
-              ? `<ul style="margin: 0 0 0 12px; padding: 0; list-style: none;">
-                ${item.excludedIngredients.map((i) => `<li style="color: red;">--> Sin: ${i.description}</li>`).join('')}
-              </ul>`
-              : ''
-          }
-        </div>
-      `
-        )
-        .join('')}
-    </div>
-
-    <hr style="border-top: 1px dashed black;" />
-
-    <div style="text-align: center;">
-      <p style="margin: 4px 0;"><strong>TOTAL: ${formatPrice(data.total)}</strong></p>
-      <p style="margin: 4px 0;">${new Date().toLocaleString()}</p>
-    </div>
-      <br/>
-      <br/>
-    <p style="text-align: center;">&nbsp;</p>
-  </div>
-  `
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+  `.trim()
 }

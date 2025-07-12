@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import AdminLayout from "./layouts/AdminLayout";
 import { categoryRoute, configurationRoute, ingredientsRoute, ordersRoute, productsRoute, startRoute } from "./lib/routes";
 import Start from "./pages/Start";
@@ -13,7 +13,7 @@ import Configuration from "./pages/Configuration";
 
 const Router = () => {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<AdminLayout />}>
           <Route index path={startRoute} element={<Start />} />
@@ -27,7 +27,7 @@ const Router = () => {
           <Route index path="/" element={<Login />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

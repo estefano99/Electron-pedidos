@@ -20,7 +20,7 @@ interface OrderPanelProps {
 }
 
 export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: OrderPanelProps) {
-  const { currentOrder, removeItemFromCurrentOrder } = useOrder()
+  const { currentOrder, removeItemFromCurrentOrder, clearCurrentOrder } = useOrder()
   const queryClient = useQueryClient()
 
   const [editingItem, setEditingItem] = useState<OrderItem | null>(null)
@@ -32,15 +32,20 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
       console.log(error);
       toast.error("Error al crear el pedido");
     },
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       toast.success("Pedido creado exitosamente");
-      queryClient.removeQueries({ queryKey: ['currentOrder'] })
+      clearCurrentOrder()
       queryClient.invalidateQueries({ queryKey: ['orders'] })
       setCustomerName("")
       setScheduledTime(null)
       setActiveTab("current-order")
       //Imprime la orden
-      imprimirTicket(response)
+      try {
+        await imprimirTicket(response)
+      } catch (error: any) {
+        console.error("Error al imprimir el ticket:", error)
+        toast.error("Error al imprimir el ticket: " + error.message)
+      }
     },
   });
 

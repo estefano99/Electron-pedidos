@@ -4,9 +4,10 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getTenantIdFromDisk } from './utils/tenant'
 import { autoUpdater } from 'electron-updater'
+import { printer as ThermalPrinter, types as PrinterTypes } from 'node-thermal-printer'
 
-const ThermalPrinter = require('node-thermal-printer').printer
-const PrinterTypes = require('node-thermal-printer').types
+// const ThermalPrinter = require('node-thermal-printer').printer
+// const PrinterTypes = require('node-thermal-printer').types
 
 let mainWindow: BrowserWindow
 
@@ -25,8 +26,14 @@ function createWindow(): void {
     }
   })
 
+  ipcMain.handle('get-app-version', () => {
+    return app.getVersion()
+  })
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    //! Muestra la consola del renderer
+    mainWindow.webContents.openDevTools()
     //* Esto abre la consola en desarrollo
     if (is.dev) {
       mainWindow.webContents.openDevTools()
@@ -59,6 +66,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.electron')
+  autoUpdater.checkForUpdatesAndNotify()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -84,8 +92,8 @@ app.whenReady().then(() => {
         type: PrinterTypes.EPSON,
         interface: `usb:${printerName}`,
         options: { timeout: 5000 },
-        width: 48,
-        characterSet: 'SLOVENIA'
+        width: 48
+        // characterSet: 'SLOVENIA'
       })
 
       const isConnected = await printer.isPrinterConnected()
@@ -114,16 +122,16 @@ app.whenReady().then(() => {
         printer.printQR(data.qrCode, { model: 2, cellSize: 8, correction: 'M' })
       }
 
-      if (data.barCode) {
-        printer.alignCenter()
-        printer.printBarcode(data.barCode, {
-          type: 'CODE128',
-          width: 2,
-          height: 50,
-          position: 'OFF',
-          includeText: true
-        })
-      }
+      // if (data.barCode) {
+      //   printer.alignCenter()
+      //   printer.printBarcode(data.barCode, {
+      //     type: 'CODE128',
+      //     width: 2,
+      //     height: 50,
+      //     position: 'OFF',
+      //     includeText: true
+      //   })
+      // }
 
       printer.alignCenter()
       printer.newLine()
@@ -199,18 +207,19 @@ app.whenReady().then(() => {
       return { ok: false, error: 'Faltan datos para imprimir el ticket de la orden' }
     }
 
-    const printWin = new BrowserWindow({ show: false })
-    await printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
+    const win = new BrowserWindow({ show: false })
+
+    await win.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
 
     return new Promise((resolve) => {
-      printWin.webContents.print(
+      win.webContents.print(
         {
           silent: true,
           deviceName: printerName,
           printBackground: false
         },
         (success, failureReason) => {
-          printWin.close()
+          win.close()
           resolve(success ? { ok: true } : { ok: false, error: failureReason })
         }
       )

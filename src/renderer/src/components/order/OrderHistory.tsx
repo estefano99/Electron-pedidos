@@ -43,7 +43,7 @@ export function OrderHistory() {
               <p>No hay pedidos {statusColors[status].label} en el día actual</p>
             </div>
           ) : (
-            <div className="space-y-4 h-full overflow-y-auto">
+            <div className="space-y-4 h-full max-h-[calc(100vh-200px)] overflow-y-auto">
               {data?.orders.map((order) => (
                 <OrderCard
                   key={order.id}

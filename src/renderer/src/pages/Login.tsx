@@ -10,15 +10,14 @@ import { Input } from "@/components/ui/input"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { toast } from "@/hooks/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { FormProvider, useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 import { login } from "@/api/Auth"
 import { Loader2 } from "lucide-react"
-import { getConfigurationPublic } from "@/api/ConfigurationApi"
-import { RestaurantSettingsPublic } from "@/types/configuration"
 import { startRoute } from "@/lib/routes"
+import electronLogo from '../assets/electron.svg';
 
 const formSchema = z.object({
   username: z.string().min(1, {
@@ -37,12 +36,6 @@ export function Login() {
       password: "",
     },
   })
-
-  const { data } = useQuery<RestaurantSettingsPublic>({
-    queryKey: ["settings"],
-    queryFn: getConfigurationPublic,
-  });
-  console.log("🚀 ~ Login ~ data:", data)
 
   const navigate = useNavigate()
 
@@ -72,18 +65,14 @@ export function Login() {
       <div className="flex-1 bg-muted hidden md:block relative">
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="text-center space-y-4">
-            {data ? (
               <img
-                src={data.logoUrl}
+                src={electronLogo}
                 alt="Imagen del local comercial"
                 loading="lazy"
                 className="rounded-lg shadow-lg mx-auto max-w-[90%] max-h-[400px] object-contain bg-white"
               />
-            ) : (
-              <div className="w-[600px] h-[400px] bg-gray-200 animate-pulse rounded-lg mx-auto" />
-            )}
-            <h2 className="text-2xl font-bold">{data?.displayName || "No se encontro el nombre"}</h2>
-            <p className="text-muted-foreground">Sistema de Pedidos</p>
+              <div className="max-w-[90%] max-h-[400px] bg-gray-200 animate-pulse rounded-lg mx-auto" />
+            <h2 className="text-2xl font-bold">Sistema de Pedidos</h2>
           </div>
         </div>
       </div>
@@ -93,12 +82,11 @@ export function Login() {
         {/* Logo para dispositivos móviles */}
         <div className="mb-6 text-center md:hidden">
           <img
-            src={data?.logoUrl}
+            src={electronLogo}
             alt="Logo del local comercial"
             className="rounded-full shadow-md mx-auto w-[150px] h-[150px] object-cover"
           />
-          <h2 className="text-xl font-bold mt-3">{data?.displayName || "No se encontro el nombre"}</h2>
-          <p className="text-sm text-muted-foreground">Sistema de Pedidos</p>
+          <h2 className="text-2xl font-bold">Sistema de Pedidos</h2>
         </div>
 
         <Card className="w-full max-w-md">

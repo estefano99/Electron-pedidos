@@ -66,8 +66,8 @@ export function OrderCard({ order, isExpanded, onToggleExpand }: OrderCardProps)
           <div className="space-y-3">
             <Separator />
             <div className="space-y-2">
-              {order.items.map((item) => (
-                <div className="flex-1">
+              {order.items.map((item, key) => (
+                <div className="flex-1" key={key}>
                   <p className="flex justify-between"><span className="font-medium">{item.product.name}</span> <span className="text-sm">{item?.unitPrice && formatPrice(item?.unitPrice)}</span></p>
                   {item.excludedIngredients.length > 0 && (
                     item.excludedIngredients.map((ingredient) => (

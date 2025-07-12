@@ -4,13 +4,22 @@ import path from 'path'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+     build: {
+      outDir: 'dist/main'
+    }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()]
+    plugins: [externalizeDepsPlugin()],
+     build: {
+      outDir: 'dist/preload'
+    }
   },
   renderer: {
     plugins: [react()],
+     build: {
+      outDir: 'dist/renderer'
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src/renderer/src')

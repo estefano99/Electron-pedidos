@@ -1,6 +1,15 @@
 import ConfiguracionImpresion from "@/components/ConfiguracionImpresion"
+import { useEffect, useState } from "react"
 
 const Start = () => {
+  const [version, setVersion] = useState('')
+
+   useEffect(() => {
+    window.electron.ipcRenderer.invoke('get-app-version').then(setVersion)
+  }, [])
+
+  console.log(version)
+
   const imprimirPara = async (destino: 'caja' | 'cocina') => {
     const config = JSON.parse(localStorage.getItem('impresoras_config') || '{}')
     const { impresora, modo } = config[destino] || {}
