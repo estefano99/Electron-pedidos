@@ -30,7 +30,7 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
     mutationFn: createOrder,
     onError: (error: Error) => {
       console.log(error);
-      toast.error("Error al crear el pedido");
+      toast.error(`Error al crear el pedido: ${error.message}`);
     },
     onSuccess: async (response) => {
       toast.success("Pedido creado exitosamente");

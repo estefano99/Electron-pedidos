@@ -35,11 +35,13 @@ export function ProductList() {
   // Esta función filtra los productos a mostrar según:
   // 1) La categoría seleccionada (si hay una).
   // 2) El texto ingresado en el buscador, comparándolo con el nombre del producto.
+  // 3) Los productos que esten activos
   // Devuelve solo los productos que coinciden con ambos criterios.
   const filteredProducts = products?.filter(product => {
     const categoryMatch = selectedCategory ? product.category.id === selectedCategory : true
     const searchMatch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    return categoryMatch && searchMatch
+    const isActiveMatch = product.isActive;
+    return categoryMatch && searchMatch && isActiveMatch
   })
 
   const handleProductSelect = (product: ProductWithIngredients) => {

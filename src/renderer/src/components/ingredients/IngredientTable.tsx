@@ -100,10 +100,6 @@ export function IngredientTable({ ingredients }: props) {
               <DropdownMenuLabel className="text-center select-none">Acciones</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="focus:bg-yellow-300/30 flex items-center gap-2"
-              >
-              </DropdownMenuItem>
-              <DropdownMenuItem
                 className="focus:bg-blue-500/30 flex items-center gap-2 cursor-pointer"
                 onClick={() => handleEdit(ingredient)}
               >

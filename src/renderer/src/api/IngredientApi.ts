@@ -5,13 +5,12 @@ import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 
 const getIngredients = async (): Promise<GetIngredientResponse> => {
-  const tenantId = await getTenantId()
-  console.log("🚀 ~ getIngredients ~ tenantId:", tenantId)
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ingredientsBack}`)
     return data
   } catch (error) {
-    console.log('[ERROR] getIngredients: ', error)
+    console.error('[ERROR] getIngredients: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }
@@ -20,7 +19,7 @@ const getIngredients = async (): Promise<GetIngredientResponse> => {
 }
 
 const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
       `${tenantRoute}/${tenantId}/${ingredientsBack}`,
@@ -28,7 +27,7 @@ const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient>
     )
     return data
   } catch (error) {
-    console.log('[ERROR] createIngredients: ', error)
+    console.error('[ERROR] createIngredients: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }
@@ -37,7 +36,7 @@ const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient>
 }
 
 const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
 
   const { id, description } = ingredient
   try {
@@ -46,7 +45,7 @@ const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
     })
     return data
   } catch (error) {
-    console.log('[ERROR] editIngredient: ', error)
+    console.error('[ERROR] editIngredient: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }
@@ -55,7 +54,7 @@ const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
 }
 
 const deleteIngredient = async (ingredient: Ingredient) => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
 
   const { id } = ingredient
   try {
@@ -64,7 +63,7 @@ const deleteIngredient = async (ingredient: Ingredient) => {
     )
     return data
   } catch (error) {
-    console.log('[ERROR] deleteIngredient: ', error)
+    console.error('[ERROR] deleteIngredient: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }

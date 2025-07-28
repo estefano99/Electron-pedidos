@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Order } from "@/types/order"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
+import { es } from 'date-fns/locale';
 import HeaderPages from "@/components/HeaderPages"
 
 export default function Orders() {
@@ -78,7 +79,8 @@ export default function Orders() {
                       timeFormat="HH:mm"
                       timeIntervals={15}
                       dateFormat="dd/MM/yyyy HH:mm"
-                      className="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      locale={es}
+                      className="w-full text-sm px-3 py-2 rounded-md border border-input bg-background text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                       placeholderText="Seleccionar fecha y hora"
                     />
                   </div>

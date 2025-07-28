@@ -127,8 +127,6 @@ export function SettingsPanel() {
       imageFile: undefined,
     },
   });
-  //Mostrar por consola los errores al submit
-  console.log(form.formState.errors);
 
   const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>, onChange: (file: File) => void) => {
     const file = e.target.files?.[0];
@@ -165,7 +163,6 @@ export function SettingsPanel() {
       });
     }
   };
-  console.log(data)
 
   useEffect(() => {
     if (data) {

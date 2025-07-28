@@ -11,7 +11,6 @@ const Ingredients = () => {
     refetchOnWindowFocus: false,
     refetchOnMount: false
   });
-  console.log(data)
   return (
     <div className="w-full">
       <HeaderPages title="Ingedientes" />

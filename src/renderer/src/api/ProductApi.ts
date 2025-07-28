@@ -10,7 +10,7 @@ import { productsBack, tenantRoute } from '@/lib/routes'
 import { getTenantId } from '@/lib/functions'
 
 const getProducts = async (): Promise<ProductWithIngredients[]> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${productsBack}`)
     return data
@@ -25,7 +25,7 @@ const getProducts = async (): Promise<ProductWithIngredients[]> => {
 
 const createProduct = async (product: CreateProductForm): Promise<Product> => {
   try {
-    const tenantId = await getTenantId()
+    const tenantId = getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -34,7 +34,9 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
     formData.append('categoryId', product.categoryId)
     formData.append('isActive', String(product.isActive))
     formData.append('ingredients', JSON.stringify(product.ingredients))
-    formData.append('image', product.imgUrl)
+    if (product.imgUrl instanceof File) {
+      formData.append('image', product.imgUrl)
+    }
 
     const { data } = await clienteAxios.post<Product>(
       `${tenantRoute}/${tenantId}/${productsBack}`,
@@ -53,7 +55,7 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
 const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
   console.log(product)
   try {
-    const tenantId = await getTenantId()
+    const tenantId = getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -62,7 +64,9 @@ const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
     formData.append('categoryId', product.categoryId)
     formData.append('isActive', String(product.isActive))
     formData.append('ingredients', JSON.stringify(product.ingredients))
-    formData.append('image', product.imgUrl)
+    if (product.imgUrl instanceof File) {
+      formData.append('image', product.imgUrl)
+    }
 
     const { data } = await clienteAxios.put<Product>(
       `${tenantRoute}/${tenantId}/${productsBack}/${product.id}`,
@@ -79,7 +83,7 @@ const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
 }
 
 const deleteProduct = async (product: ProductWithIngredients): Promise<Product> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.delete(
       `${tenantRoute}/${tenantId}/${productsBack}/${product.id}`

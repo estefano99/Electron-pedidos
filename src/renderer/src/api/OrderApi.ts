@@ -2,15 +2,15 @@ import { isAxiosError } from 'axios'
 import { ordersBack, tenantRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
-import { NewOrder, Order, OrderStatus } from '@/types/order'
+import { NewOrder, Order, OrderStatus, OrderFilterStatus } from '@/types/order'
 
 export type GetOrdersResponse = {
   message: string
   orders: Order[]
 }
 
-const getOrdersTodayByStatus = async (status: OrderStatus): Promise<GetOrdersResponse> => {
-  const tenantId = await getTenantId()
+const getOrdersTodayByStatus = async (status: OrderFilterStatus): Promise<GetOrdersResponse> => {
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ordersBack}/today/${status}`)
     return data
@@ -24,7 +24,7 @@ const getOrdersTodayByStatus = async (status: OrderStatus): Promise<GetOrdersRes
 }
 
 const createOrder = async (order: NewOrder): Promise<Order> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   //DTO para el backend
   const orderForBackend = {
     ...order,
@@ -60,7 +60,7 @@ const createOrder = async (order: NewOrder): Promise<Order> => {
 }
 
 const updateStatusOrder = async (orderId: string, status: OrderStatus): Promise<Order> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data }: { data: Order } = await clienteAxios.patch(
       `${tenantRoute}/${tenantId}/${ordersBack}/${orderId}`,

@@ -52,7 +52,6 @@ export function ProductTable({ products }: Props) {
   const [productEdit, setProductEdit] = React.useState<ProductWithIngredients | null>(null);
 
   const handleEdit = (product: ProductWithIngredients) => {
-    console.log(product)
     setIsEdit(true);
     setProductEdit(product);
   };

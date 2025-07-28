@@ -42,7 +42,7 @@ export type CreateProductForm = {
     description: string
     isMandatory: boolean
   }[]
-  imgUrl: File
+  imgUrl?: File | string
 }
 
 export type UpdateProductForm = CreateProductForm & {

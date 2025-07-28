@@ -56,11 +56,12 @@ const formSchema = z.object({
       isMandatory: z.boolean(),
     })
   ),
-  imgUrl: z
-    .instanceof(File)
-    .refine((file) => file.size < 5 * 1024 * 1024, {
+  imgUrl: z.union([
+    z.instanceof(File).refine((file) => file.size < 5 * 1024 * 1024, {
       message: "La imagen debe ser menor a 5MB",
     }),
+    z.string().url().min(1),
+  ]).optional(),
 });
 
 type Props = {
@@ -71,6 +72,7 @@ type Props = {
 };
 
 const FormEditar = ({ product, setIsEdit, isEdit, setProductEdit }: Props) => {
+  console.log("🚀 ~ FormEditar ~ product:", product)
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filePreview, setFilePreview] = useState<string | null>(null);
@@ -107,7 +109,7 @@ const FormEditar = ({ product, setIsEdit, isEdit, setProductEdit }: Props) => {
         title: "Producto editado con éxito",
         description: (
           <span>
-            Se ha creado{" "} {respuesta.name || product.name}
+            Se ha editado{" "} {respuesta.name || product.name}
           </span>
         ),
         className:

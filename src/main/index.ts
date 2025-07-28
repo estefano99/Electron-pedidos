@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { getTenantIdFromDisk } from './utils/tenant'
 import { autoUpdater } from 'electron-updater'
 import { printer as ThermalPrinter, types as PrinterTypes } from 'node-thermal-printer'
 
@@ -144,13 +143,6 @@ app.whenReady().then(() => {
       console.error('Error al imprimir:', error)
       return { success: false, error: error.message }
     }
-  })
-
-  //Funcion que obtiene el tenant seteado en main/config/tenant.json
-  ipcMain.handle('get-tenant-id', () => {
-    const tenantId = getTenantIdFromDisk()
-    if (!tenantId) throw new Error('No se encontro el tenantId')
-    return tenantId
   })
 
   ipcMain.handle('print-ticket', async (_, data) => {

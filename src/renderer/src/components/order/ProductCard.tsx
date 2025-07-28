@@ -31,7 +31,7 @@ export function ProductCard({ product, onSelect }: ProductCardProps) {
         <div className="flex flex-col gap-1">
           <span className="font-bold text-lg text-primary">{formatPrice(product.price)}</span>
           <Button size="sm" className="h-8" onClick={() => onSelect(product)}>
-            <Plus className="h-4 w-4 mr-1" />
+            <Plus className="h-4 w-4" />
             Agregar
           </Button>
         </div>

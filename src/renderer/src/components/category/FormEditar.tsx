@@ -74,7 +74,6 @@ const FormEditar = ({
       });
     },
     onSuccess: (respuesta) => {
-      console.log(respuesta);
       toast({
         title: "Categoria editado exitosamente!",
         description: (
@@ -102,7 +101,6 @@ const FormEditar = ({
       id: category?.id,
       ...values
     };
-
     await mutation.mutateAsync(data);
   }
   return (

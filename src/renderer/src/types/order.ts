@@ -18,6 +18,16 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED'
 }
 
+//Este se utiliza para los filtros, porque tiene every, el modelo de la db no tiene every.
+export enum OrderFilterStatus {
+  ALL = "ALL",
+  PENDING = "PENDING",
+  IN_PREPARATION = "IN_PREPARATION",
+  READY = "READY",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+}
+
 export enum OrderSource {
   LOCAL = 'LOCAL',
   ONLINE = 'ONLINE'

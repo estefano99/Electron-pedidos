@@ -12,15 +12,32 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import SidebarNav from "./SidebarNav";
 import { Button } from "../ui/button";
 import SidebarLink from "./SidebarLink";
+import { useQuery } from "@tanstack/react-query";
+import { RestaurantSettings } from "@/types/configuration";
+import { getConfiguration } from "@/api/ConfigurationApi";
 
 const Sidebar = () => {
+  const { data } = useQuery<RestaurantSettings>({
+    queryKey: ["settings"],
+    queryFn: getConfiguration,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false
+  });
+
   return (
     <div className="h-14 absolute md:relative md:h-full w-1/6 2xl:w-[20%] md:border-r md:bg-muted/40 md:block">
       <div className="hidden md:flex h-full flex-col gap-2">
-        <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+        <div className="flex h-14 items-center gap-2 border-b px-4 lg:h-[60px] lg:px-6">
+          <img
+            src={data?.logoUrl}
+            alt="Imagen del local comercial"
+            loading="lazy"
+            className="h-10 w-10 object-contain rounded-md shadow"
+          />
           <p className="flex items-center gap-2 font-semibold">
-            {/* <Package2 className="h-6 w-6" /> */}
-            <span className="text-base md:text-xl">Sistema ordenes</span>
+            <span className="flex gap-3 text-base md:text-lg">
+              {data ? data.displayName : "Sistema de pedidos"}
+            </span>
           </p>
         </div>
         <div className="flex-1">

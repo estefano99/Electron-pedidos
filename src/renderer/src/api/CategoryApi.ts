@@ -5,12 +5,12 @@ import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 
 const getCategories = async (): Promise<GetCategoriesResponse> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${categoriesBack}`)
     return data
   } catch (error) {
-    console.log('[ERROR] getCategories: ', error)
+    console.error('[ERROR] getCategories: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }
@@ -19,7 +19,7 @@ const getCategories = async (): Promise<GetCategoriesResponse> => {
 }
 
 const createCategory = async (category: categoryForm): Promise<category> => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
       `${tenantRoute}/${tenantId}/${categoriesBack}`,
@@ -27,7 +27,7 @@ const createCategory = async (category: categoryForm): Promise<category> => {
     )
     return data
   } catch (error) {
-    console.log('[ERROR] createCategory: ', error)
+    console.error('[ERROR] createCategory: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.error)
     }
@@ -36,16 +36,17 @@ const createCategory = async (category: categoryForm): Promise<category> => {
 }
 
 const editCategory = async (category: category): Promise<category> => {
-  const tenantId = await getTenantId()
-  const { id, description } = category
+  const tenantId = getTenantId()
+  const { id, description, isActive } = category
 
   try {
     const { data } = await clienteAxios.put(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`, {
-      description
+      description,
+      isActive
     })
     return data
   } catch (error) {
-    console.log('[ERROR] editCategory: ', error)
+    console.error('[ERROR] editCategory: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }
@@ -54,13 +55,13 @@ const editCategory = async (category: category): Promise<category> => {
 }
 
 const deleteCategory = async (category: category) => {
-  const tenantId = await getTenantId()
+  const tenantId = getTenantId()
   const { id } = category
   try {
     const { data } = await clienteAxios.delete(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`)
     return data
   } catch (error) {
-    console.log('[ERROR] deleteCategory: ', error)
+    console.error('[ERROR] deleteCategory: ', error)
     if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message)
     }

@@ -1,4 +1,4 @@
-import { Order, OrderStatus } from '@/types/order'
+import { Order, OrderFilterStatus, OrderStatus } from '@/types/order'
 import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 interface CustomPayload extends JwtPayload {
@@ -6,6 +6,11 @@ interface CustomPayload extends JwtPayload {
 }
 
 export const statusColors = {
+  [OrderFilterStatus.ALL]: {
+    bg: 'bg-neutral-400 hover:bg-neutral-600',
+    text: 'text-white',
+    label: 'Todos'
+  },
   [OrderStatus.PENDING]: {
     bg: 'bg-yellow-500 hover:bg-yellow-700',
     text: 'text-white',
@@ -41,6 +46,16 @@ export const orderStatuses: OrderStatus[] = [
   OrderStatus.CANCELLED
 ] as const
 
+//Utiliza el type para filters, osea agrega el every para filtros en panel de orderHistory. No como el order status original que no tiene every
+export const orderFilterStatuses: OrderFilterStatus[] = [
+  OrderFilterStatus.ALL,
+  OrderFilterStatus.PENDING,
+  OrderFilterStatus.IN_PREPARATION,
+  OrderFilterStatus.READY,
+  OrderFilterStatus.DELIVERED,
+  OrderFilterStatus.CANCELLED
+] as const
+
 export const formatPrice = (price: number): string => {
   return new Intl.NumberFormat('es-AR', {
     style: 'currency',
@@ -69,37 +84,6 @@ export const getTenantId = (): string | null => {
     return null
   }
 }
-
-// export const getTenantId = async (): Promise<string | null> => {
-//   // 1. Intentar obtener desde token JWT
-//   const token = localStorage.getItem('AUTH_TOKEN')
-//   if (token) {
-//     try {
-//       const decoded = jwtDecode<CustomPayload>(token)
-//       if (!decoded.exp || decoded.exp * 1000 > Date.now()) {
-//         return decoded.tenantId || null
-//       } else {
-//         localStorage.removeItem('AUTH_TOKEN')
-//       }
-//     } catch {
-//       localStorage.removeItem('AUTH_TOKEN')
-//     }
-//   }
-
-//   // 2. Si no hay token válido, usar el tenant desde Electron
-//   if (window.api?.getTenantId) {
-//     try {
-//       const tenantId = await window.api.getTenantId()
-//       console.log('🚀 ~ getTenantId ~ tenantId:', tenantId)
-//       return tenantId
-//     } catch (error) {
-//       console.error('[ERROR] getTenantIdAsync (Electron):', error)
-//       return null
-//     }
-//   }
-
-//   return null
-// }
 
 export const imprimirTicket = async (order: Order) => {
   const config = JSON.parse(localStorage.getItem('impresoras_config') || '{}')
@@ -136,7 +120,8 @@ function generarHTMLTicket(data: Order): string {
 
       // 👇 Alineamos el precio a la derecha con puntos intermedios
       const nombreYPrecio =
-        `${'-'} ${item.product.name}`.padEnd(15, '.') + ` ${item?.unitPrice ? formatPrice(item?.unitPrice) : "Sin precio"}`
+        `${'-'} ${item.product.name}`.padEnd(15, '.') +
+        ` ${item?.unitPrice ? formatPrice(item?.unitPrice) : 'Sin precio'}`
 
       return `
       <div style="margin-bottom: 6px;">
@@ -154,6 +139,7 @@ function generarHTMLTicket(data: Order): string {
       <div style="text-align: center; margin-bottom: 8px;">
         <h2 style="margin: 0; font-size: 18px;">${data.tenantDisplayName?.toUpperCase() || 'LOCAL SIN NOMBRE'}</h2>
         <p style="margin: 2px 0;">Cliente: <strong>${data.customerName ?? 'Sin nombre'}</strong></p>
+        <p style="margin: 2px 0;">Cliente: <strong>${data?.code}</strong></p>
         <p style="margin: 2px 0;">Entrega: ${hora}</p>
       </div>
 

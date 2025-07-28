@@ -1,61 +1,65 @@
 import { useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { OrderStatus } from "@/types/order"
+import { OrderFilterStatus, OrderStatus } from "@/types/order"
 import { useQuery } from "@tanstack/react-query"
 import { GetOrdersResponse, getOrdersTodayByStatus } from "@/api/OrderApi"
 import { OrderCard } from "./orderCard/OrderCard"
 import { AlertCircle } from "lucide-react"
-import { orderStatuses, statusColors } from "@/lib/functions"
+import { orderFilterStatuses, statusColors } from "@/lib/functions"
 
+//* orderFilterStatuses se utiliza solo en filtros porque tiene el estado all que en la db no existe
+//* orderStatuses es el Enum como debe ir, que se utiliza para editar el estado y se manda al back
 export function OrderHistory() {
-  const [activeFilter, setActiveFilter] = useState<OrderStatus>(OrderStatus.PENDING)
+  const [activeFilter, setActiveFilter] = useState<OrderFilterStatus>(OrderFilterStatus.PENDING)
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null)
 
-  const { data, isLoading, isError } = useQuery<GetOrdersResponse>({
+  const { data, isLoading } = useQuery<GetOrdersResponse>({
     queryKey: ["ordersTodayByStatus", activeFilter],
     queryFn: () => getOrdersTodayByStatus(activeFilter),
   });
 
   return (
-    <Tabs value={activeFilter} onValueChange={(val) => setActiveFilter(val as OrderStatus)}>
+    <Tabs value={activeFilter} onValueChange={(val) => setActiveFilter(val as OrderFilterStatus)}>
       <TabsList className="grid w-full grid-cols-3 h-auto p-1">
-        {orderStatuses.map((status) => (
-          <TabsTrigger key={status} value={status} className="flex flex-col items-center gap-2 py-2 text-xs">
+        {orderFilterStatuses.map((status) => (
+          <TabsTrigger key={status} value={status} className="text-xs py-2">
             {statusColors[status].label}
           </TabsTrigger>
         ))}
       </TabsList>
 
-      {isError && (
-        <div className="text-center py-8 text-muted-foreground">
-          <AlertCircle className="mx-auto h-6 w-6 mb-2" />
-          <p>Error al cargar los pedidos</p>
-        </div>
-      )}
+      {orderFilterStatuses.map((status) => {
+        const filtered =
+          status === OrderFilterStatus.ALL
+            ? data?.orders || []
+            : data?.orders?.filter((o) => o.status === status as unknown as OrderStatus) || []
 
-      {orderStatuses.map((status) => (
-        <TabsContent key={status} value={status}>
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Cargando...</div>
-          ) : data?.orders.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <AlertCircle className="mx-auto h-6 w-6 mb-2" />
-              <p>No hay pedidos {statusColors[status].label} en el día actual</p>
-            </div>
-          ) : (
-            <div className="space-y-4 h-full max-h-[calc(100vh-200px)] overflow-y-auto">
-              {data?.orders.map((order) => (
-                <OrderCard
-                  key={order.id}
-                  order={order}
-                  isExpanded={expandedOrder === order.id}
-                  onToggleExpand={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      ))}
+        return (
+          <TabsContent key={status} value={status}>
+            {isLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Cargando...</div>
+            ) : filtered.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <AlertCircle className="mx-auto h-6 w-6 mb-2" />
+                <p>No hay pedidos {statusColors[status].label} en el día actual</p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+                {filtered.map((order) => (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    isExpanded={expandedOrder === order.id}
+                    onToggleExpand={() =>
+                      setExpandedOrder(expandedOrder === order.id ? null : order.id)
+                    }
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        )
+      })}
     </Tabs>
   )
 }
