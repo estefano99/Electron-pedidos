@@ -201,12 +201,6 @@ export function SettingsPanel() {
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-11/12 mx-auto">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Settings className="h-6 w-6" />
-            <h2 className="text-2xl font-bold">Configuración del Restaurante</h2>
-          </div>
-        </div>
         <div className="grid gap-6">
           <Card>
             <CardHeader>

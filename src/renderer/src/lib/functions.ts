@@ -139,7 +139,7 @@ function generarHTMLTicket(data: Order): string {
       <div style="text-align: center; margin-bottom: 8px;">
         <h2 style="margin: 0; font-size: 18px;">${data.tenantDisplayName?.toUpperCase() || 'LOCAL SIN NOMBRE'}</h2>
         <p style="margin: 2px 0;">Cliente: <strong>${data.customerName ?? 'Sin nombre'}</strong></p>
-        <p style="margin: 2px 0;">Cliente: <strong>${data?.code}</strong></p>
+        <p style="margin: 2px 0;">Cod. Orden: <strong>${data?.code}</strong></p>
         <p style="margin: 2px 0;">Entrega: ${hora}</p>
       </div>
 

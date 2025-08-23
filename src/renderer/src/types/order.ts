@@ -8,6 +8,7 @@ export interface OrderItem {
   excludedIngredients: Ingredient[]
   totalPrice: number
   unitPrice?: number //Se usa cuando viene del back, pero no cuando se crea una orden del front
+  quantity: number
 }
 
 export enum OrderStatus {

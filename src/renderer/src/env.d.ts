@@ -1,36 +1,47 @@
 /// <reference types="vite/client" />
 
-// Esa interfaz que estás editando (en global.d.ts o un archivo similar) es solo para TypeScript del renderer, es decir, del front de Electron.
-// Sirve para que el auto completado, el chequeo de tipos y el TS compiler sepan que existe window.api.(metodo)) y cómo se usa.
-
 export {}
 
 declare global {
+  type PrinterMode = 'driver' | 'escpos' | 'tcp' | 'bluetooth'
+
+  interface PrinterOptions {
+    ip?: string
+    port?: number
+    mac?: string
+    [key: string]: any
+  }
+
+  interface PrintPayload {
+    header?: string
+    text?: string
+    footer?: string
+  }
+
+  interface PrintTicketInput extends PrintPayload {
+    printerName: string
+    modo: PrinterMode
+    opciones?: PrinterOptions
+  }
+
+  interface PrintResult {
+    ok: boolean
+    error?: string
+  }
+
   interface Window {
     api: {
-      getPrinters: () => Promise<Electron.PrinterInfo[]>
+      /** Lista de impresoras visibles para Electron (renderer) */
       getThermalPrinters: () => Promise<Electron.PrinterInfo[]>
-      printToThermal: (
-        printerName: string,
-        data: {
-          header?: string
-          text?: string
-          footer?: string
-          qrCode?: string
-          barCode?: string
-        }
-      ) => Promise<{ success: boolean; result?: any; error?: string }>
-      printTicket: (data: {
-        header?: string
-        text?: string
-        footer?: string
-        printerName?: string
-      }) => Promise<{ ok: boolean; error?: string }>
-      printOrderTicket: (data: {
-        html: string
-        printerName: string
-      }) => Promise<{ ok: boolean; error?: string }>
-      getTenantId: () => Promise<string>
+
+      /** ÚNICO punto de impresión. El main elige la Strategy (driver/escpos/tcp/...) */
+      printTicket: (data: PrintTicketInput) => Promise<PrintResult>
+
+      /** (Opcional/Legacy) Mantener solo si lo necesitás; idealmente deprecar. */
+      printOrderTicket: (data: { html: string; printerName: string }) => Promise<PrintResult>
+
+      /** (Opcional) Si ya lo usabas en UI */
+      getAppVersion?: () => Promise<string>
     }
   }
 }

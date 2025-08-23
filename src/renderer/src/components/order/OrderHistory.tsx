@@ -16,6 +16,8 @@ export function OrderHistory() {
   const { data, isLoading } = useQuery<GetOrdersResponse>({
     queryKey: ["ordersTodayByStatus", activeFilter],
     queryFn: () => getOrdersTodayByStatus(activeFilter),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   return (

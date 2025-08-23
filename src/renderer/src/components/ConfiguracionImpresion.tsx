@@ -1,10 +1,34 @@
 import { useEffect, useState } from 'react'
 
+type ImpresoraConfig = {
+  impresora: string
+  modo: 'driver' | 'escpos' | 'tcp' | 'bluetooth'
+  opciones?: {
+    ip?: string
+    port?: number
+    mac?: string
+    [key: string]: any
+  }
+}
+
+type ConfiguracionGeneral = {
+  [key: string]: ImpresoraConfig
+}
+
+const AREAS: Array<'caja' | 'cocina'> = ['caja', 'cocina']
+
+const MODO_IMPRESION: { value: ImpresoraConfig['modo']; label: string }[] = [
+  { value: 'driver', label: 'Driver (Recomendado)' },
+  { value: 'escpos', label: 'ESC/POS' },
+  { value: 'tcp', label: 'TCP (IP)' },
+  { value: 'bluetooth', label: 'Bluetooth' }
+]
+
 const ConfiguracionImpresion = () => {
   const [impresoras, setImpresoras] = useState<string[]>([])
-  const [config, setConfig] = useState({
-    caja: { impresora: '', modo: 'driver' },
-    cocina: { impresora: '', modo: 'driver' }
+  const [config, setConfig] = useState<ConfiguracionGeneral>({
+    caja: { impresora: '', modo: 'driver', opciones: {} },
+    cocina: { impresora: '', modo: 'driver', opciones: {} }
   })
 
   useEffect(() => {
@@ -23,7 +47,20 @@ const ConfiguracionImpresion = () => {
     fetch()
   }, [])
 
-  const actualizar = (area: 'caja' | 'cocina', key: 'impresora' | 'modo', value: string) => {
+  const actualizarOpcion = (area: string, key: string, value: any) => {
+    setConfig((prev) => ({
+      ...prev,
+      [area]: {
+        ...prev[area],
+        opciones: {
+          ...prev[area].opciones,
+          [key]: value
+        }
+      }
+    }))
+  }
+
+  const actualizarCampo = (area: string, key: keyof ImpresoraConfig, value: any) => {
     setConfig((prev) => ({
       ...prev,
       [area]: {
@@ -42,61 +79,60 @@ const ConfiguracionImpresion = () => {
     <div className="p-4 mb-6 bg-gray-800 rounded-lg text-white">
       <h2 className="text-lg font-semibold mb-4">Configuración de Impresoras</h2>
 
-      {/* CAJA */}
-      <div className="mb-4 flex bg-gray-700/80 p-4 rounded-lg">
-        <div className="w-full pr-2">
-          <label className="block mb-1 font-medium">Caja - Impresora</label>
-          <select
-            className="text-black p-2 mb-2 rounded w-full"
-            value={config.caja.impresora}
-            onChange={(e) => actualizar('caja', 'impresora', e.target.value)}
-          >
-            <option value="">Seleccionar impresora</option>
-            {impresoras.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-        </div>
-        <div className="w-full pr-2">
-          <label className="block mb-1 font-medium">Caja - Modo</label>
-          <select
-            className="text-black p-2 rounded w-full"
-            value={config.caja.modo}
-            onChange={(e) => actualizar('caja', 'modo', e.target.value)}
-          >
-            <option value="driver">Driver (Recomendado)</option>
-            <option value="raw">Raw (ESC/POS)</option>
-          </select>
-        </div>
-      </div>
+      {AREAS.map((area) => (
+        <div key={area} className="mb-4 flex bg-gray-700/80 p-4 rounded-lg">
+          <div className="w-full pr-2">
+            <label className="block mb-1 font-medium capitalize">
+              {area} - Impresora
+            </label>
+            <select
+              className="text-black p-2 mb-2 rounded w-full"
+              value={config[area].impresora}
+              onChange={(e) => actualizarCampo(area, 'impresora', e.target.value)}
+            >
+              <option value="">Seleccionar impresora</option>
+              {impresoras.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
 
-      {/* COCINA */}
-      <div className="mb-4 flex bg-gray-700/80 p-4 rounded-lg">
-        <div className="w-full pr-2">
-          <label className="block mb-1 font-medium">Cocina - Impresora</label>
-          <select
-            className="text-black p-2 mb-2 rounded w-full"
-            value={config.cocina.impresora}
-            onChange={(e) => actualizar('cocina', 'impresora', e.target.value)}
-          >
-            <option value="">Seleccionar impresora</option>
-            {impresoras.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+          <div className="w-full pr-2">
+            <label className="block mb-1 font-medium capitalize">{area} - Modo</label>
+            <select
+              className="text-black p-2 rounded w-full"
+              value={config[area].modo}
+              onChange={(e) => actualizarCampo(area, 'modo', e.target.value)}
+            >
+              {MODO_IMPRESION.map((modo) => (
+                <option key={modo.value} value={modo.value}>
+                  {modo.label}
+                </option>
+              ))}
+            </select>
+
+            {config[area].modo === 'tcp' && (
+              <>
+                <label className="block mt-2 text-sm">IP</label>
+                <input
+                  type="text"
+                  className="text-black p-2 rounded w-full"
+                  value={config[area].opciones?.ip || ''}
+                  onChange={(e) => actualizarOpcion(area, 'ip', e.target.value)}
+                />
+                <label className="block mt-2 text-sm">Puerto</label>
+                <input
+                  type="number"
+                  className="text-black p-2 rounded w-full"
+                  value={config[area].opciones?.port || 9100}
+                  onChange={(e) => actualizarOpcion(area, 'port', parseInt(e.target.value))}
+                />
+              </>
+            )}
+          </div>
         </div>
-        <div className="w-full pr-2">
-          <label className="block mb-1 font-medium">Cocina - Modo</label>
-          <select
-            className="text-black p-2 rounded w-full"
-            value={config.cocina.modo}
-            onChange={(e) => actualizar('cocina', 'modo', e.target.value)}
-          >
-            <option value="driver">Driver (Recomendado)</option>
-            <option value="raw">Raw (ESC/POS)</option>
-          </select>
-        </div>
-      </div>
+      ))}
+
       <div className="flex justify-end">
         <button
           onClick={guardar}

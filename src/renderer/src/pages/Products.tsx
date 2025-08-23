@@ -8,7 +8,9 @@ const Products = () => {
   const { data, isLoading } = useQuery<ProductWithIngredients[]>({
     queryKey: ["products"],
     queryFn: getProducts,
-    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false
   });
   return (
     <div className='w-full'>

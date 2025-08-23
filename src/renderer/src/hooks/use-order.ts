@@ -12,13 +12,13 @@ export function useOrder() {
     queryFn: async () => {
       return queryClient.getQueryData<NewOrder>(['currentOrder']) ?? null
     },
-    staleTime: Infinity
+    staleTime: Infinity,
   })
 
-  const allOrders = queryClient.getQueryData<NewOrder[]>(['allOrders']) || []
+  const allOrders = queryClient.getQueryData<NewOrder[]>(['ordersTodayByStatus']) || []
 
   const startNewOrder = async (customerName: string, scheduledTime: Date | null) => {
-    const tenantId = await getTenantId()
+    const tenantId = getTenantId()
     if (!tenantId) throw new Error('Tenant ID no encontrado')
 
     const newOrder: NewOrder = {
