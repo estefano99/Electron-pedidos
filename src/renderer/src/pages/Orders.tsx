@@ -12,10 +12,8 @@ import { User, ShoppingCart } from "lucide-react"
 import { Toaster } from "@/components/ui/sonner"
 import { useQueryClient } from "@tanstack/react-query"
 import { Order } from "@/types/order"
-import DatePicker from "react-datepicker"
-import "react-datepicker/dist/react-datepicker.css"
-import { es } from 'date-fns/locale';
 import HeaderPages from "@/components/HeaderPages"
+import CalendarScheduleTime from "@/components/order/CalendarScheduleTime"
 
 export default function Orders() {
   const { currentOrder, startNewOrder } = useOrder()
@@ -72,17 +70,7 @@ export default function Orders() {
                   />
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="scheduled-time">Horario del Pedido</Label>
-                    <DatePicker
-                      selected={scheduledTime}
-                      onChange={(date) => setScheduledTime(date)}
-                      showTimeSelect
-                      timeFormat="HH:mm"
-                      timeIntervals={15}
-                      dateFormat="dd/MM/yyyy HH:mm"
-                      locale={es}
-                      className="w-full text-sm px-3 py-2 rounded-md border border-input bg-background text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-                      placeholderText="Seleccionar fecha y hora"
-                    />
+                    <CalendarScheduleTime scheduledTime={scheduledTime} setScheduledTime={setScheduledTime}/>
                   </div>
                 </div>
                 <Button onClick={handleNewOrder} className="w-full" disabled={!customerName.trim() || !scheduledTime}>

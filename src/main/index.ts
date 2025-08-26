@@ -94,56 +94,6 @@ app.whenReady().then(() => {
     }
   })
 
-  // ipcMain.handle('print-ticket', async (_, data) => {
-  //   const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
-  //   if (!win) return { ok: false, error: 'No hay ventana activa' }
-
-  //   const printerName = data.printerName
-  //   if (!printerName) {
-  //     return { ok: false, error: 'No se especificó una impresora' }
-  //   }
-
-  //   const printers = await win.webContents.getPrintersAsync()
-  //   console.log("🚀 ~ printers:", printers)
-  //   const exists = printers.some((p) => p.name === printerName)
-
-  //   if (!exists) {
-  //     return { ok: false, error: `La impresora "${printerName}" no está disponible` }
-  //   }
-
-  //   const html = `
-  //     <div style="font-family: monospace; padding: 20px;">
-  //       <h2 style="text-align: center;">${data.header || 'Ticket'}</h2>
-  //       <hr />
-  //       <pre>${data.text || 'Pedido de prueba'}</pre>
-  //       <hr />
-  //       <p style="text-align: center;">${data.footer || ''}</p>
-  //       <p style="text-align: center;">${new Date().toLocaleString()}</p>
-  //     </div>
-  //   `
-
-  //   const printWin = new BrowserWindow({ show: false })
-  //   await printWin.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`)
-
-  //   return new Promise((resolve) => {
-  //     printWin.webContents.print(
-  //       {
-  //         silent: true,
-  //         deviceName: printerName,
-  //         printBackground: false
-  //       },
-  //       (success, failureReason) => {
-  //         printWin.close()
-  //         if (success) {
-  //           resolve({ ok: true })
-  //         } else {
-  //           resolve({ ok: false, error: failureReason })
-  //         }
-  //       }
-  //     )
-  //   })
-  // })
-
   ipcMain.handle('print-order-ticket', async (_, { printerName, html }) => {
     if (!printerName || !html) {
       return { ok: false, error: 'Faltan datos para imprimir el ticket de la orden' }

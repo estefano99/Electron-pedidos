@@ -1,13 +1,14 @@
 import { GetOrdersResponse, getOrdersTodayByStatus } from "@/api/OrderApi"
 import { getProducts } from "@/api/ProductApi"
+import CalendarDashboard from "@/components/dashboard/CalendarDashboard"
 import HeaderPages from "@/components/HeaderPages"
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useOrder } from "@/hooks/use-order"
-import { formatPrice } from "@/lib/functions"
+import { formatPrice, orderStatuses, statusColors } from "@/lib/functions"
 import { Order, OrderFilterStatus, OrderStatus } from "@/types/order"
 import { ProductWithIngredients } from "@/types/product"
 import { useQuery } from "@tanstack/react-query"
-import { Clock, DollarSign, ShoppingBag, Star, TrendingUp } from "lucide-react"
+import { Clock, DollarSign, ShoppingBag, Star, Users } from "lucide-react"
 import { useMemo, useState } from "react"
 
 interface ProductStats {
@@ -17,11 +18,19 @@ interface ProductStats {
   quantity: number;
 }
 
+interface HourlyStats {
+  hour: number
+  orders: number
+  revenue: number
+}
+
 const Start = () => {
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
 
   const { data } = useQuery<GetOrdersResponse>({
-    queryKey: ["ordersTodayByStatus", OrderFilterStatus.ALL],
-    queryFn: () => getOrdersTodayByStatus(OrderFilterStatus.ALL),
+    queryKey: ["ordersTodayByStatus", OrderFilterStatus.ALL, selectedDate],
+    queryFn: () => getOrdersTodayByStatus(OrderFilterStatus.ALL, selectedDate),
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
@@ -33,6 +42,10 @@ const Start = () => {
     refetchOnReconnect: false,
     refetchOnMount: false
   });
+
+  const formatHour = (hour: number) => {
+    return `${hour.toString().padStart(2, "0")}:00`
+  }
 
   const totalProducts = products?.length;
 
@@ -71,10 +84,49 @@ const Start = () => {
     return Array.from(productMap.values()).sort((a, b) => b.quantity - a.quantity); //Retprma el array ordenado en forma descendente
   }, [todayOrders]);
 
+  // Calculate hourly statistics
+  const { hourlyStats, peakHour } = useMemo(() => {
+    // Inicializar todas las horas
+    const hourlyMap = new Map<number, HourlyStats>()
+    for (let i = 0; i < 24; i++) {
+      hourlyMap.set(i, { hour: i, orders: 0, revenue: 0 })
+    }
+
+    // Rellenar con las órdenes del día
+    todayOrders.forEach((order) => {
+      const hour = new Date(order.createdAt).getHours()
+      const existing = hourlyMap.get(hour)!
+      hourlyMap.set(hour, {
+        ...existing,
+        orders: existing.orders + 1,
+        revenue: existing.revenue + order.total,
+      })
+    })
+
+    const stats = Array.from(hourlyMap.values())
+
+    // Calcular peakHour sobre esos datos
+    const peak = stats.reduce(
+      (max, current) => (current.orders > max.orders ? current : max),
+      { hour: 0, orders: 0, revenue: 0 }
+    )
+
+    return { hourlyStats: stats, peakHour: peak }
+  }, [todayOrders])
+
   return (
     <div className="min-h-screen w-full">
       <HeaderPages title="Dashboard" />
       <div className="p-6 space-y-6">
+        <div className="flex justify-center items-center gap-2">
+          <p className="text-muted-foreground text-center text-lg">Análisis de rendimiento del</p>
+          <CalendarDashboard
+            calendarOpen={calendarOpen}
+            setCalendarOpen={setCalendarOpen}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
+        </div>
         {/* Métricas principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Primer card */}
@@ -111,10 +163,13 @@ const Start = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalProducts}</div>
+              <p className="text-xs text-muted-foreground">
+                Productos creados en el sistema
+              </p>
             </CardContent>
           </Card>
 
-          {/* <Card>
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Hora Pico</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -123,7 +178,7 @@ const Start = () => {
               <div className="text-2xl font-bold">{formatHour(peakHour.hour)}</div>
               <p className="text-xs text-muted-foreground">{peakHour.orders} pedidos en esa hora</p>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -158,14 +213,14 @@ const Start = () => {
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <ShoppingBag className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No hay ventas registradas hoy</p>
+                  <p>No hay ventas registradas en la fecha seleccionada</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Ventas por hora */}
-          {/* <Card>
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -197,44 +252,42 @@ const Start = () => {
                       </div>
                       <div className="text-right ml-4">
                         <p className="font-bold">{stat.orders} pedidos</p>
-                        <p className="text-sm text-green-600">{formatCurrency(stat.revenue)}</p>
+                        <p className="text-sm text-green-600">{formatPrice(stat.revenue)}</p>
                       </div>
                     </div>
                   ))}
                 {hourlyStats.every((stat) => stat.orders === 0) && (
                   <div className="text-center py-8 text-muted-foreground">
                     <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                    <p>No hay ventas registradas hoy</p>
+                    <p>No hay ventas registradas en la fecha seleccionada</p>
                   </div>
                 )}
               </div>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         {/* Resumen de estados de pedidos */}
-        {/* <Card>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Estado de Pedidos del Día
+              Estado de Pedidos
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { status: "pending", label: "Pendientes", color: "bg-yellow-100 text-yellow-800" },
-                { status: "preparing", label: "En Preparación", color: "bg-blue-100 text-blue-800" },
-                { status: "ready", label: "Listos", color: "bg-green-100 text-green-800" },
-                { status: "delivered", label: "Entregados", color: "bg-gray-100 text-gray-800" },
-              ].map(({ status, label, color }) => {
-                const count = todayOrders.filter((order) => order.status === status).length
+              {orderStatuses.map((status) => {
+                const estado = statusColors[status]
+                if (!estado) return null
+
+                const count = todayOrders.filter((order: Order) => order.status === status).length
                 const percentage = todayOrdersCount > 0 ? (count / todayOrdersCount) * 100 : 0
 
                 return (
                   <div key={status} className="text-center">
-                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${color}`}>
-                      {label}
+                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${estado.bg} ${estado.text}`}>
+                      {estado.label}
                     </div>
                     <div className="mt-2">
                       <div className="text-2xl font-bold">{count}</div>
@@ -245,7 +298,7 @@ const Start = () => {
               })}
             </div>
           </CardContent>
-        </Card> */}
+        </Card>
       </div>
     </div>
   )

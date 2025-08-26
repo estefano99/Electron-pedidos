@@ -1,4 +1,6 @@
 import { Order, OrderFilterStatus, OrderStatus } from '@/types/order'
+import { format } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 interface CustomPayload extends JwtPayload {
@@ -65,6 +67,11 @@ export const formatPrice = (price: number): string => {
   }).format(price)
 }
 
+export const formatDateHelper = (selectedDate: Date | null) => {
+  if (!selectedDate) return null;
+  return format(selectedDate, 'PPP', { locale: es })
+}
+
 export const getTenantId = (): string | null => {
   const token = localStorage.getItem('AUTH_TOKEN')
   if (!token) return null
@@ -101,6 +108,7 @@ export const imprimirTicket = async (order: Order) => {
     console.error(`Error al imprimir: ${result.error}`)
     throw new Error(`Error al imprimir: ${result.error}`)
   }
+  return { success: true }
 }
 
 function generarHTMLTicket(data: Order): string {

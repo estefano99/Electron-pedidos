@@ -3,16 +3,25 @@ import { ordersBack, tenantRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
 import { getTenantId } from '@/lib/functions'
 import { NewOrder, Order, OrderStatus, OrderFilterStatus } from '@/types/order'
+import { format } from 'date-fns'
 
 export type GetOrdersResponse = {
   message: string
   orders: Order[]
 }
 
-const getOrdersTodayByStatus = async (status: OrderFilterStatus): Promise<GetOrdersResponse> => {
+const getOrdersTodayByStatus = async (
+  status: OrderFilterStatus,
+  date?: Date
+): Promise<GetOrdersResponse> => {
   const tenantId = getTenantId()
+  // si viene date → lo mando como query param YYYY-MM-DD, por ahora se utiliza en el dashboard el date y en panel orders se setea la fecha por de hoy default en el back
+  const dateFormateado = date ? format(date, 'yyyy-MM-dd') : undefined //local
+  const dateParam = dateFormateado ? `?date=${dateFormateado}` : ''
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ordersBack}/today/${status}`)
+    const { data } = await clienteAxios.get(
+      `${tenantRoute}/${tenantId}/${ordersBack}/today/${status}${dateParam}`
+    )
     return data
   } catch (error) {
     console.log('[ERROR] getOrdersTodayByStatus: ', error)

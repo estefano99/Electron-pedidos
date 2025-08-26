@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { Clock, Loader2, User } from "lucide-react"
 import { OrderItemCard } from "./OrderItemCard"
 import { useState } from "react"
-import { NewOrder, OrderItem } from "@/types/order"
+import { NewOrder, Order, OrderItem } from "@/types/order"
 import { IngredientSelector } from "./IngredientSelector"
 import { formatPrice, imprimirTicket } from "@/lib/functions"
 import { Badge } from "../ui/badge"
@@ -26,28 +26,30 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
   const [editingItem, setEditingItem] = useState<OrderItem | null>(null)
   const [_isModalOpen, setModalOpen] = useState(false)
 
+  //Mutacion que guarda la orden en el Back
   const mutation = useMutation({
     mutationFn: createOrder,
     onError: (error: Error) => {
-      console.log(error);
-      toast.error(`Error al crear el pedido: ${error.message}`);
+      console.log("Error al crear el pedido:", error)
+      toast.error(`Error al crear el pedido: ${error.message}`)
     },
-    onSuccess: async (response) => {
-      toast.success("Pedido creado exitosamente");
-      clearCurrentOrder()
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
-      setCustomerName("")
-      setScheduledTime(null)
-      setActiveTab("current-order")
-      //Imprime la orden
-      try {
-        await imprimirTicket(response)
-      } catch (error: any) {
-        console.error("Error al imprimir el ticket:", error)
-        toast.error("Error al imprimir el ticket: " + error.message)
-      }
+    onSuccess: () => {
+      toast.success("Pedido creado exitosamente")
     },
-  });
+  })
+
+  //Mutacion de la COMANDERA
+  const printTicketMutation = useMutation({
+    mutationFn: async (order: Order) => await imprimirTicket(order),
+    onSuccess: () => {
+      console.log("Salio por el success")
+      toast.success("Ticket enviado a la impresora")
+    },
+    onError: (error: Error) => {
+      console.error("Error de impresión:", error)
+      toast.error("Error al imprimir el ticket: " + error.message)
+    },
+  })
 
   const handleEdit = (item: OrderItem) => {
     setEditingItem(item)
@@ -56,15 +58,32 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
   }
 
   const handleCompleteOrder = async () => {
-    // if (currentOrder.items.length > 0) completeCurrentOrder()
     const order = queryClient.getQueryData<NewOrder>(['currentOrder'])
 
     if (!order || order.items.length === 0) {
       toast.error("No hay productos en el pedido")
       return
     }
-    await mutation.mutateAsync(order);
+
+    try {
+      const createdOrder = await mutation.mutateAsync(order)
+
+      // Limpiar UI
+      clearCurrentOrder()
+      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      setCustomerName("")
+      setScheduledTime(null)
+      setActiveTab("current-order")
+
+      // Generar Ticket
+      await printTicketMutation.mutateAsync(createdOrder)
+
+    } catch (error: any) {
+      toast.error("❌ Error al crear el pedido: " + error.message)
+      console.error("Error al guardar pedido:", error)
+    }
   }
+
 
   if (!currentOrder) {
     return (
