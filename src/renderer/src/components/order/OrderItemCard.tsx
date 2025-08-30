@@ -38,13 +38,20 @@ export function OrderItemCard({ item, onRemove, onEdit }: Props) {
         </div>
 
         {(removed.length > 0) && (
-          <div className="space-y-1 text-xs">
+          <div className="flex flex-col space-y-1 text-xs">
             {/* {extra.length > 0 && (
               <p className="text-green-600">+ {extra.map((i) => i.description).join(", ")}</p>
             )} */}
-            {removed.length > 0 && (
-              <p className="text-red-600">- {removed.map((i) => i.description).join(", ")}</p>
-            )}
+            {/* {removed.length > 0 && (
+              <p className="text-red-600">- {removed.map((i) => i.description)}</p>
+            )} */}
+            {
+              removed.length > 0 && (
+                removed.map((ingredient => (
+                  <p className="text-red-600">- {ingredient.description}</p>
+                )))
+              )
+            }
           </div>
         )}
       </CardContent>

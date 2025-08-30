@@ -31,10 +31,14 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
     mutationFn: createOrder,
     onError: (error: Error) => {
       console.log("Error al crear el pedido:", error)
-      toast.error(`Error al crear el pedido: ${error.message}`)
+      toast.error(`Error al crear el pedido: ${error.message}`, {
+        richColors: true
+      })
     },
     onSuccess: () => {
-      toast.success("Pedido creado exitosamente")
+      toast.success("Pedido creado exitosamente",{
+        richColors: true
+      })
     },
   })
 
@@ -70,7 +74,7 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
 
       // Limpiar UI
       clearCurrentOrder()
-      queryClient.invalidateQueries({ queryKey: ['orders'] })
+      queryClient.invalidateQueries({ queryKey: ['ordersTodayByStatus'] })
       setCustomerName("")
       setScheduledTime(null)
       setActiveTab("current-order")
@@ -83,8 +87,6 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
       console.error("Error al guardar pedido:", error)
     }
   }
-
-
   if (!currentOrder) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center">
@@ -159,6 +161,7 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
           }}
           preselectedIncluded={editingItem.includedIngredients}
           preselectedExcluded={editingItem.excludedIngredients}
+          editingItem={editingItem}
         />
       )}
     </div>

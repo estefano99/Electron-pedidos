@@ -12,7 +12,7 @@ export function useOrder() {
     queryFn: async () => {
       return queryClient.getQueryData<NewOrder>(['currentOrder']) ?? null
     },
-    staleTime: Infinity,
+    staleTime: Infinity
   })
 
   const allOrders = queryClient.getQueryData<NewOrder[]>(['ordersTodayByStatus']) || []
@@ -31,7 +31,6 @@ export function useOrder() {
       source: OrderSource.LOCAL,
       tenantId
     }
-
     queryClient.setQueryData(['currentOrder'], newOrder)
   }
 
@@ -87,7 +86,7 @@ export function useOrder() {
   }
 
   const clearCurrentOrder = () => {
-    queryClient.removeQueries({ queryKey: ['currentOrder'] })
+    queryClient.setQueryData(['currentOrder'], null)
   }
 
   return {

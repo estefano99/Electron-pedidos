@@ -56,10 +56,11 @@ const formSchema = z.object({
     })
   ),
   imgUrl: z
-    .instanceof(File)
-    .refine((file) => file.size < 5 * 1024 * 1024, {
+    .union([z.instanceof(File), z.undefined()])
+    .refine((file) => !file || file.size < 5 * 1024 * 1024, {
       message: "La imagen debe ser menor a 5MB",
-    }),
+    })
+    .optional(),
 });
 
 const FormAlta = () => {
@@ -75,6 +76,7 @@ const FormAlta = () => {
       price: undefined,
       categoryId: undefined,
       isActive: true,
+      imgUrl: undefined,
       ingredients: [],
     },
   });
@@ -110,12 +112,15 @@ const FormAlta = () => {
     },
   });
 
-  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>, onChange: (file: File) => void) => {
+  const handleChangeFile = (e: React.ChangeEvent<HTMLInputElement>, onChange: (file: File | undefined) => void) => {
     const file = e.target.files?.[0];
     if (file) {
-      onChange(file); // Se Envia el archivo al hook sin controlar el valor
-      setFilePreview(URL.createObjectURL(file));
-    }
+    onChange(file);
+    setFilePreview(URL.createObjectURL(file));
+  } else {
+    onChange(undefined);
+    setFilePreview(null);
+  }
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {

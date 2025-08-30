@@ -42,7 +42,7 @@ const CalendarScheduleTime = ({ scheduledTime, setScheduledTime }) => {
 
   return (
     <DatePicker
-      selected={scheduledTime ?? nowRounded}// arranca en el siguiente 15'
+      selected={scheduledTime}// arranca en el siguiente 15'
       onChange={(date) => {
         if (!date) return setScheduledTime(null)
         setScheduledTime(roundUpTo15(date)) // por si el usuario hace click entre intervalos, siempre ajustamos a 15'

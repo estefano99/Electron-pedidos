@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-// import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { OrderSummary } from "@/components/order/OrderSummary"
 import { OrderItem } from "@/types/order"
@@ -24,10 +23,10 @@ interface IngredientSelectorProps {
   onClose: () => void
   preselectedIncluded?: Ingredient[]
   preselectedExcluded?: Ingredient[]
+  editingItem: OrderItem | null
 }
 
-
-export function IngredientSelector({ product, onClose, preselectedIncluded, preselectedExcluded }: IngredientSelectorProps) {
+export function IngredientSelector({ product, onClose, preselectedIncluded, preselectedExcluded, editingItem }: IngredientSelectorProps) {
   const { currentOrder, addItemToCurrentOrder } = useOrder()
   const [selectedIngredients, setSelectedIngredients] = useState<Ingredient[]>([])
   const [excludedIngredients, setExcludedIngredients] = useState<Ingredient[]>([])
@@ -65,7 +64,9 @@ export function IngredientSelector({ product, onClose, preselectedIncluded, pres
 
   const handleAddToOrder = () => {
     if (!currentOrder) {
-      toast.error("Primero iniciá un pedido")
+      toast.warning("Primero iniciá un pedido", {
+        richColors: true
+      })
       return
     }
     const orderItem: OrderItem = {
@@ -74,6 +75,7 @@ export function IngredientSelector({ product, onClose, preselectedIncluded, pres
       includedIngredients: selectedIngredients,
       excludedIngredients,
       totalPrice: calculateTotalPrice(),
+      quantity: 1
     }
     addItemToCurrentOrder(orderItem)
     onClose()
@@ -137,10 +139,13 @@ export function IngredientSelector({ product, onClose, preselectedIncluded, pres
         />
 
         <DialogFooter className="mt-4">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleAddToOrder}>Agregar al pedido</Button>
+          {
+            !editingItem &&
+            <Button variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+          }
+          <Button onClick={handleAddToOrder}>{editingItem ? "Editar Pedido" : "Agregar al pedido"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -8,7 +8,7 @@ import { formatPrice, orderStatuses, statusColors } from "@/lib/functions"
 import { Order, OrderFilterStatus, OrderStatus } from "@/types/order"
 import { ProductWithIngredients } from "@/types/product"
 import { useQuery } from "@tanstack/react-query"
-import { Clock, DollarSign, ShoppingBag, Star, Users } from "lucide-react"
+import { Clock, DollarSign, Pizza, ShoppingBag, Star, Users } from "lucide-react"
 import { useMemo, useState } from "react"
 
 interface ProductStats {
@@ -159,7 +159,7 @@ const Start = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Productos Totales</CardTitle>
-              <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+              <Pizza className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalProducts}</div>

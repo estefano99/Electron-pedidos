@@ -11,7 +11,7 @@ import { useOrder } from "@/hooks/use-order"
 import { User, ShoppingCart } from "lucide-react"
 import { Toaster } from "@/components/ui/sonner"
 import { useQueryClient } from "@tanstack/react-query"
-import { Order } from "@/types/order"
+import { NewOrder, Order } from "@/types/order"
 import HeaderPages from "@/components/HeaderPages"
 import CalendarScheduleTime from "@/components/order/CalendarScheduleTime"
 
@@ -22,10 +22,25 @@ export default function Orders() {
   const [activeTab, setActiveTab] = useState("current-order")
   const queryClient = useQueryClient()
 
-  const allOrders = queryClient.getQueryData(["orders"]) as Order[] || []
-
+  const allOrders = queryClient.getQueryData(["ordersTodayByStatus"]) as Order[] || []
   const handleNewOrder = () => {
-    if (customerName.trim() && scheduledTime) {
+    const hasData = customerName.trim() && scheduledTime
+
+    if (currentOrder && hasData) {
+      queryClient.setQueryData(['currentOrder'], (prev: NewOrder | null) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          customerName: customerName.trim(),
+          scheduledTime: scheduledTime ?? undefined,
+        }
+      })
+      setCustomerName("")
+      setScheduledTime(null)
+      return;
+    }
+
+    if (hasData) {
       startNewOrder(customerName.trim(), scheduledTime)
       setCustomerName("")
       setScheduledTime(null)
@@ -70,12 +85,12 @@ export default function Orders() {
                   />
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="scheduled-time">Horario del Pedido</Label>
-                    <CalendarScheduleTime scheduledTime={scheduledTime} setScheduledTime={setScheduledTime}/>
+                    <CalendarScheduleTime scheduledTime={scheduledTime} setScheduledTime={setScheduledTime} />
                   </div>
                 </div>
                 <Button onClick={handleNewOrder} className="w-full" disabled={!customerName.trim() || !scheduledTime}>
                   <User className="h-4 w-4 mr-2" />
-                  Iniciar Pedido
+                  {customerName.trim() && scheduledTime && currentOrder ? "Editar Pedido" : "Iniciar Pedido"}
                 </Button>
               </CardContent>
             </Card>
