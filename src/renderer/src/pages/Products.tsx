@@ -13,7 +13,7 @@ const Products = () => {
     refetchOnMount: false
   });
   return (
-    <div className='w-full'>
+    <div className='w-full overflow-auto'>
       <HeaderPages title='Productos' />
       {isLoading ? "Cargando..." : data && <ProductTable products={data} />}
     </div>

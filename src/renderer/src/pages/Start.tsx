@@ -115,7 +115,7 @@ const Start = () => {
   }, [todayOrders])
 
   return (
-    <div className="min-h-screen w-full">
+    <div className="min-h-screen w-full overflow-auto">
       <HeaderPages title="Dashboard" />
       <div className="p-6 space-y-6">
         <div className="flex justify-center items-center gap-2">

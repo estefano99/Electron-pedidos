@@ -12,7 +12,7 @@ const Ingredients = () => {
     refetchOnMount: false
   });
   return (
-    <div className="w-full">
+    <div className="w-full overflow-auto">
       <HeaderPages title="Ingedientes" />
       {isLoading ? "Cargando..." : data && <IngredientTable ingredients={data} />}
     </div>

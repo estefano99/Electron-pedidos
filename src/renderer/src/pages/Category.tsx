@@ -14,7 +14,7 @@ const Category = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-auto">
       <HeaderPages title="Categorías" />
       {isLoading ? "Cargando..." : data && <CategoryTable categories={data || []} />}
     </div>

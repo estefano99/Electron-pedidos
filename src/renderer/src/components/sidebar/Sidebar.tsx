@@ -1,22 +1,58 @@
+import { useState } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import {
-  Home,
-  Menu,
+  LayoutDashboard,
+  ChevronLeft,
+  ChevronRight,
   LogOut,
-  Pizza,
-  ChefHat,
-  Tags,
+  Cog,
   ClipboardList,
-  Cog
-} from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import SidebarNav from "./SidebarNav";
-import { Button } from "../ui/button";
-import SidebarLink from "./SidebarLink";
-import { useQuery } from "@tanstack/react-query";
-import { RestaurantSettings } from "@/types/configuration";
-import { getConfiguration } from "@/api/ConfigurationApi";
+  ChefHat,
+  Pizza,
+  Tags,
+} from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
+import { RestaurantSettings } from "@/types/configuration"
+import { getConfiguration } from "@/api/ConfigurationApi"
+import clsx from "clsx"
+// import { toast } from "sonner"
 
-const Sidebar = () => {
+const navigation = [
+  { name: "Inicio", href: "/inicio", icon: LayoutDashboard },
+  { name: "Categorias", href: "/categorias", icon: Tags },
+  { name: "Productos", href: "/productos", icon: Pizza },
+  { name: "Ingredientes", href: "/ingredientes", icon: ChefHat },
+  { name: "Pedidos", href: "/pedidos", icon: ClipboardList },
+  { name: "Configuracion", href: "/configuracion", icon: Cog },
+]
+
+//  links={[
+//               { title: "Inicio", icon: Home },
+//               { title: "Categorias", icon: Tags },
+//               { title: "Productos", icon: Pizza },
+//               { title: "Ingredientes", icon: ChefHat },
+//               { title: "Pedidos", icon: ClipboardList },
+//               { title: "Configuracion", icon: Cog },
+//             ]}
+
+function Sidebar() {
+  const [collapsed, setCollapsed] = useState(false)
+  const location = useLocation()
+
+  const navigate = useNavigate()
+  // const logout = useLogout()
+
+  // const logoutSession = async () => {
+  //   try {
+  //     await logout.mutateAsync()
+  //     navigate("/", {replace: true})
+  //   } catch (err: any) {
+  //     toast.error("No se pudo cerrar sesión", { description: err?.message ?? "Error inesperado" })
+  //   }
+  // }
+
   const { data } = useQuery<RestaurantSettings>({
     queryKey: ["settings"],
     queryFn: getConfiguration,
@@ -24,74 +60,87 @@ const Sidebar = () => {
     refetchOnMount: false
   });
 
+  const logout = () => {
+    localStorage.removeItem("AUTH_TOKEN");
+    navigate("/");
+  };
+
   return (
-    <div className="h-14 absolute md:relative md:h-full w-1/6 2xl:w-[20%] md:border-r md:bg-muted/40 md:block">
-      <div className="hidden md:flex h-full flex-col gap-2">
-        <div className="flex h-14 items-center gap-2 border-b px-4 lg:h-[60px] lg:px-6">
+    <div
+      className={cn(
+        "md:bg-muted/40 border-r transition-all duration-300",
+        collapsed ? "w-16" : "w-64"
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between h-16 border-b border-gray-200 dark:border-gray-700 px-3">
+        {/* Logo + nombre */}
+        <div className="flex items-center gap-3 overflow-hidden">
           <img
             src={data?.logoUrl}
             alt="Imagen del local comercial"
             loading="lazy"
             className="h-10 w-10 object-contain rounded-md shadow"
           />
-          <p className="flex items-center gap-2 font-semibold">
-            <span className="flex gap-3 text-base md:text-lg">
+          {!collapsed && (
+            <p className="font-semibold text-base md:text-lg truncate">
               {data ? data.displayName : "Sistema de pedidos"}
-            </span>
-          </p>
+            </p>
+          )}
         </div>
-        <div className="flex-1">
-          <SidebarNav
-            links={[
-              { title: "Inicio", icon: Home },
-              { title: "Categorias", icon: Tags },
-              { title: "Productos", icon: Pizza },
-              { title: "Ingredientes", icon: ChefHat },
-              { title: "Pedidos", icon: ClipboardList },
-              { title: "Configuracion", icon: Cog },
-            ]}
-          />
-        </div>
-        <div className="w-full flex flex-col justify-center h-20">
-          <SidebarLink
-            key={`cerrar-sesion`}
-            linkTitle={`Cerrar sesión`}
-            linkIcon={LogOut}
-            redirectTo={`cerrar-sesion`}
-          />
-        </div>
-      </div>
-      {/* Menu hamburguesa para mobile */}
-      <div className="flex flex-col md:hidden absolute z-50">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="shrink-0 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <SidebarNav
-                links={[
-                  { title: "Inicio", icon: Home },
-                  { title: "Categorias", icon: Tags },
-                  { title: "Productos", icon: Pizza },
-                  { title: "Ingredientes", icon: ChefHat },
-                  { title: "Pedidos", icon: ClipboardList },
-                  { title: "Configuracion", icon: Cog },
-                ]}
-              />
-            </SheetContent>
-          </Sheet>
-        </header>
-      </div>
-    </div>
-  );
-};
 
-export default Sidebar;
+        {/* Botón colapsar */}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => setCollapsed(!collapsed)}
+          className="shrink-0 p-2"
+        >
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </Button>
+      </div>
+
+      {/* Navigation */}
+      <nav className={cn("py-4 px-2 lg:px-4 space-y-2", collapsed && "px-0")}>
+        {navigation.map((item) => {
+          const isActive = location.pathname === item.href
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={clsx(
+                "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer",
+                {
+                  "bg-muted text-primary hover:text-primary": isActive,
+                  "text-muted-foreground hover:text-primary": !isActive,
+                },
+                collapsed && "justify-center rounded-lg p-3"
+              )}
+            >
+              <item.icon className={cn("h-5 w-5 shrink-0", !collapsed && "mr-3")} />
+              {!collapsed && <span className="truncate">{item.name}</span>}
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Logout */}
+      <div className="py-4 px-2 lg:px-4 space-y-2">
+
+      <Button
+        onClick={logout}
+        variant="destructive"
+        className={clsx(
+          "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors rounded-lg",
+          collapsed && "justify-center px-0"
+        )}
+        >
+        <LogOut className="h-5 w-5 shrink-0" />
+        {!collapsed && <span>Cerrar sesión</span>}
+      </Button>
+        </div>
+    </div>
+  )
+}
+
+export default Sidebar

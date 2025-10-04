@@ -23,7 +23,7 @@ interface IngredientSelectorProps {
   onClose: () => void
   preselectedIncluded?: Ingredient[]
   preselectedExcluded?: Ingredient[]
-  editingItem: OrderItem | null
+  editingItem?: OrderItem | null
 }
 
 export function IngredientSelector({ product, onClose, preselectedIncluded, preselectedExcluded, editingItem }: IngredientSelectorProps) {

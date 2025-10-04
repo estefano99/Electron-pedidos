@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Clock, User, ChefHat, Eye } from "lucide-react"
+import { Clock, User, ChefHat, Eye, CheckCircle } from "lucide-react"
 import { Order } from "@/types/order"
 import { formatPrice, statusColors } from "@/lib/functions"
 import { DropdownStatus } from "../DropdownStatus"
@@ -68,13 +68,26 @@ export function OrderCard({ order, isExpanded, onToggleExpand }: OrderCardProps)
             <div className="space-y-2">
               {order.items.map((item, key) => (
                 <div className="flex-1" key={key}>
-                  <p className="flex justify-between"><span className="font-medium">{item.product.name}</span> <span className="text-sm">{item?.unitPrice && formatPrice(item?.unitPrice)}</span></p>
+                  {/* Fila nombre + precio */}
+                  <div className="flex justify-between items-center">
+                    <span className="flex items-center gap-1 font-medium">
+                      <CheckCircle className="w-3 h-3 shrink-0" />
+                      {item.product.name}
+                    </span>
+                    {item?.unitPrice && (
+                      <span className="text-sm">{formatPrice(item.unitPrice)}</span>
+                    )}
+                  </div>
+
+                  {/* Ingredientes excluidos, indentados */}
                   {item.excludedIngredients.length > 0 && (
-                    item.excludedIngredients.map((ingredient) => (
-                      <p key={ingredient.id} className="text-muted-foreground">
-                        - {ingredient.description}
-                      </p>
-                    ))
+                    <div className="ml-2">
+                      {item.excludedIngredients.map((ingredient) => (
+                        <p key={ingredient.id} className="text-red-400/80 text-sm">
+                          - {ingredient.description}
+                        </p>
+                      ))}
+                    </div>
                   )}
                 </div>
               ))}
