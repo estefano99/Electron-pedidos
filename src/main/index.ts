@@ -29,9 +29,7 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
-    //! Muestra la consola del renderer
-    mainWindow.webContents.openDevTools()
-    //* Esto abre la consola en desarrollo
+    // Solo abrir DevTools en desarrollo
     if (is.dev) {
       mainWindow.webContents.openDevTools()
     }
@@ -62,7 +60,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('com.foodmanagement.app')
   autoUpdater.checkForUpdatesAndNotify()
 
   app.on('browser-window-created', (_, window) => {

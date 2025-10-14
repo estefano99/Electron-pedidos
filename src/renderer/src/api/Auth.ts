@@ -6,7 +6,7 @@ import { isAxiosError } from 'axios'
 const login = async (usuario: UserType) => {
   try {
     const { data } = await clienteAxios.post(loginRoute, usuario)
-    localStorage.setItem('AUTH_TOKEN', data.token)
+    // Ya no guardamos el token en localStorage, viene por cookie
     return data
   } catch (error) {
     if (isAxiosError(error) && error.response) {

@@ -18,8 +18,8 @@ export function useOrder() {
   const allOrders = queryClient.getQueryData<NewOrder[]>(['ordersTodayByStatus']) || []
 
   const startNewOrder = async (customerName: string, scheduledTime: Date | null) => {
-    const tenantId = getTenantId()
-    if (!tenantId) throw new Error('Tenant ID no encontrado')
+    // const tenantId = getTenantId()
+    // if (!tenantId) throw new Error('Tenant ID no encontrado')
 
     const newOrder: NewOrder = {
       id: uuidv4(),
@@ -29,7 +29,7 @@ export function useOrder() {
       total: 0,
       status: OrderStatus.PENDING,
       source: OrderSource.LOCAL,
-      tenantId
+      tenantId: ""
     }
     queryClient.setQueryData(['currentOrder'], newOrder)
   }

@@ -1,13 +1,11 @@
 import { category, categoryForm, GetCategoriesResponse } from '@/types/category'
 import { isAxiosError } from 'axios'
-import { categoriesBack, tenantRoute } from '@/lib/routes'
+import { getCategoriesRoute, getCategoryRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
-import { getTenantId } from '@/lib/functions'
 
 const getCategories = async (): Promise<GetCategoriesResponse> => {
-  const tenantId = getTenantId()
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${categoriesBack}`)
+    const { data } = await clienteAxios.get(getCategoriesRoute())
     return data
   } catch (error) {
     console.error('[ERROR] getCategories: ', error)
@@ -19,10 +17,9 @@ const getCategories = async (): Promise<GetCategoriesResponse> => {
 }
 
 const createCategory = async (category: categoryForm): Promise<category> => {
-  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
-      `${tenantRoute}/${tenantId}/${categoriesBack}`,
+      getCategoriesRoute(),
       category
     )
     return data
@@ -36,11 +33,10 @@ const createCategory = async (category: categoryForm): Promise<category> => {
 }
 
 const editCategory = async (category: category): Promise<category> => {
-  const tenantId = getTenantId()
   const { id, description, isActive } = category
 
   try {
-    const { data } = await clienteAxios.put(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`, {
+    const { data } = await clienteAxios.put(getCategoryRoute(id), {
       description,
       isActive
     })
@@ -55,10 +51,9 @@ const editCategory = async (category: category): Promise<category> => {
 }
 
 const deleteCategory = async (category: category) => {
-  const tenantId = getTenantId()
   const { id } = category
   try {
-    const { data } = await clienteAxios.delete(`${tenantRoute}/${tenantId}/${categoriesBack}/${id}`)
+    const { data } = await clienteAxios.delete(getCategoryRoute(id))
     return data
   } catch (error) {
     console.error('[ERROR] deleteCategory: ', error)

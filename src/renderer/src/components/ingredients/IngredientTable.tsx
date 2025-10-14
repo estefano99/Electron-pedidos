@@ -16,7 +16,6 @@ import {
 import { ArrowDown, BetweenVerticalStart, CircleEllipsis, Pencil } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-// import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -80,6 +79,23 @@ export function IngredientTable({ ingredients }: props) {
           />
         </Button>
       ),
+    },
+    {
+      accessorKey: "isActive",
+      header: () => <span className="text-sm">Estado</span>,
+      cell: ({ row }) => (
+        <span
+          className={
+            row.getValue("isActive")
+              ? "text-green-600 font-semibold"
+              : "text-red-600 font-semibold"
+          }
+        >
+          {row.getValue("isActive") ? "Activo" : "Inactivo"}
+        </span>
+      ),
+      filterFn: (row, columnId, filterValue) =>
+        String(row.getValue(columnId)) === String(filterValue),
     },
     {
       id: "actions",

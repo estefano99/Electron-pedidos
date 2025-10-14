@@ -6,13 +6,11 @@ import {
   ProductWithIngredients,
   UpdateProductForm
 } from '@/types/product'
-import { productsBack, tenantRoute } from '@/lib/routes'
-import { getTenantId } from '@/lib/functions'
+import { getProductsRoute, getProductRoute } from '@/lib/routes'
 
 const getProducts = async (): Promise<ProductWithIngredients[]> => {
-  const tenantId = getTenantId()
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${productsBack}`)
+    const { data } = await clienteAxios.get(getProductsRoute())
     return data
   } catch (error) {
     console.log('[ERROR] getProducts: ', error)
@@ -25,7 +23,6 @@ const getProducts = async (): Promise<ProductWithIngredients[]> => {
 
 const createProduct = async (product: CreateProductForm): Promise<Product> => {
   try {
-    const tenantId = getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -39,7 +36,7 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
     }
 
     const { data } = await clienteAxios.post<Product>(
-      `${tenantRoute}/${tenantId}/${productsBack}`,
+      getProductsRoute(),
       formData
     )
     return data
@@ -55,7 +52,6 @@ const createProduct = async (product: CreateProductForm): Promise<Product> => {
 const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
   console.log(product)
   try {
-    const tenantId = getTenantId()
     // 1) Armás el FormData
     const formData = new FormData()
     formData.append('name', product.name)
@@ -69,7 +65,7 @@ const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
     }
 
     const { data } = await clienteAxios.put<Product>(
-      `${tenantRoute}/${tenantId}/${productsBack}/${product.id}`,
+      getProductRoute(product.id),
       formData
     )
     return data
@@ -83,10 +79,9 @@ const updateProduct = async (product: UpdateProductForm): Promise<Product> => {
 }
 
 const deleteProduct = async (product: ProductWithIngredients): Promise<Product> => {
-  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.delete(
-      `${tenantRoute}/${tenantId}/${productsBack}/${product.id}`
+      getProductRoute(product.id)
     )
     return data
   } catch (error) {

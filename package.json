@@ -1,10 +1,10 @@
 {
-  "name": "food-magaments",
+  "name": "food-management",
   "version": "1.0.1",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Food Management - Sistema de gestión de pedidos para restaurantes",
   "main": "./dist/main/index.js",
-  "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "author": "Food Management Team",
+  "homepage": "https://github.com/julibosch/food-management",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -22,13 +22,13 @@
     "build:linux": "electron-vite build && electron-builder --linux"
   },
   "build": {
-    "appId": "com.food.magaments",
-    "productName": "Carrito Burgers",
+    "appId": "com.foodmanagement.app",
+    "productName": "Food Management",
     "publish": [
       {
         "provider": "github",
-        "owner": "estefano99",
-        "repo": "Electron-pedidos"
+        "owner": "julibosch",
+        "repo": "food-management"
       }
     ],
     "win": {

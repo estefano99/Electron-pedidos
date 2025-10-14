@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: carrito-burgers
+appId: com.foodmanagement.app
+productName: Food Management
 directories:
   buildResources: build
 files:
@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: carrito-burgers
+  executableName: food-management
   target: nsis
   sign: false
 nsis:

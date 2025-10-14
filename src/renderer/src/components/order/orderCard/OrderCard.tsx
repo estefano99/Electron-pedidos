@@ -66,31 +66,56 @@ export function OrderCard({ order, isExpanded, onToggleExpand }: OrderCardProps)
           <div className="space-y-3">
             <Separator />
             <div className="space-y-2">
-              {order.items.map((item, key) => (
-                <div className="flex-1" key={key}>
-                  {/* Fila nombre + precio */}
-                  <div className="flex justify-between items-center">
-                    <span className="flex items-center gap-1 font-medium">
-                      <CheckCircle className="w-3 h-3 shrink-0" />
-                      {item.product.name}
-                    </span>
-                    {item?.unitPrice && (
-                      <span className="text-sm">{formatPrice(item.unitPrice)}</span>
+              {order.items.map((item, key) => {
+                // Calcular extras basados en ingredientCustomizations del backend
+                const extras = (item.ingredientCustomizations || [])
+                  .filter(c => c.isAdded && c.unitPrice > 0)
+                  .map(c => ({
+                    ...c,
+                    totalPrice: Number(c.unitPrice) * c.quantity * item.quantity
+                  }))
+
+                // Calcular removidos
+                const removed = (item.ingredientCustomizations || [])
+                  .filter(c => !c.isAdded)
+
+                return (
+                  <div className="flex-1" key={key}>
+                    {/* Fila nombre + precio */}
+                    <div className="flex justify-between items-center">
+                      <span className="flex items-center gap-1 font-medium">
+                        <CheckCircle className="w-3 h-3 shrink-0" />
+                        {item.product.name}
+                      </span>
+                      {item?.unitPrice && (
+                        <span className="text-sm">{formatPrice(item.unitPrice)}</span>
+                      )}
+                    </div>
+
+                    {/* Ingredientes extras agregados */}
+                    {extras.length > 0 && (
+                      <div className="ml-4 space-y-0.5">
+                        {extras.map((extra) => (
+                          <p key={extra.ingredient.id} className="text-green-600 text-sm">
+                            + {extra.quantity}x {extra.ingredient.description} {formatPrice(extra.totalPrice)}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Ingredientes removidos */}
+                    {removed.length > 0 && (
+                      <div className="ml-4">
+                        {removed.map((rem) => (
+                          <p key={rem.ingredient.id} className="text-red-400/80 text-sm">
+                            - {rem.ingredient.description}
+                          </p>
+                        ))}
+                      </div>
                     )}
                   </div>
-
-                  {/* Ingredientes excluidos, indentados */}
-                  {item.excludedIngredients.length > 0 && (
-                    <div className="ml-2">
-                      {item.excludedIngredients.map((ingredient) => (
-                        <p key={ingredient.id} className="text-red-400/80 text-sm">
-                          - {ingredient.description}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+                )
+              })}
             </div>
             <Separator />
             <div className="flex justify-between text-sm">

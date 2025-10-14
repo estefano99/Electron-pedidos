@@ -51,8 +51,9 @@ const Start = () => {
 
   //Ordenes que vienen del back y las guardamos en un nombre mas declarativo
   const todayOrders = data?.orders || [];
+  console.log("🚀 ~ Start ~ todayOrders:", todayOrders)
 
-  const todayRevenue = todayOrders.reduce((acumulador: number, order: Order) => acumulador + order.total, 0) || 0 //Ganancia del dia
+  const todayRevenue = todayOrders.reduce((acumulador: number, order: Order) => Number(acumulador) + Number(order.total), 0) || 0 //Ganancia del dia
   const todayOrdersCount = todayOrders?.length;
   const completedOrders = todayOrders.filter(order => order.status === OrderStatus.READY || order.status === OrderStatus.DELIVERED).length; //Ordenes listas o delivery. Cuenta como completadas
   const completionRate = todayOrdersCount > 0 ? (completedOrders / todayOrdersCount) * 100 : 0; //Porcentaje de ordenes completadas
@@ -63,25 +64,39 @@ const Start = () => {
     todayOrders?.forEach(order => {
       order.items.forEach(item => {
         const productId = item.product.id
+        
+        // Calcular revenue total del item (base + extras)
+        const baseRevenue = Number(item.unitPrice ?? 0) * item.quantity
+        
+        // Sumar extras de ingredientes
+        const extrasRevenue = (item.ingredientCustomizations || []).reduce((sum, customization) => {
+          if (customization.isAdded && customization.unitPrice > 0) {
+            return sum + (Number(customization.unitPrice) * customization.quantity * item.quantity)
+          }
+          return sum
+        }, 0)
+        
+        const totalItemRevenue = baseRevenue + extrasRevenue
+        
         const existing = productMap.get(productId)
 
         if (existing) {
           productMap.set(productId, {
             ...existing,
             quantity: existing.quantity + item.quantity,
-            revenue: existing.revenue + (item.unitPrice ?? 0) * item.quantity,
+            revenue: existing.revenue + totalItemRevenue,
           })
         } else {
           productMap.set(productId, {
             id: item.product.id,
             name: item.product.name,
             quantity: item.quantity,
-            revenue: (item.unitPrice ?? 0) * item.quantity,
+            revenue: totalItemRevenue,
           })
         }
       })
     })
-    return Array.from(productMap.values()).sort((a, b) => b.quantity - a.quantity); //Retprma el array ordenado en forma descendente
+    return Array.from(productMap.values()).sort((a, b) => b.quantity - a.quantity); //Retorna el array ordenado en forma descendente
   }, [todayOrders]);
 
   // Calculate hourly statistics
@@ -99,7 +114,7 @@ const Start = () => {
       hourlyMap.set(hour, {
         ...existing,
         orders: existing.orders + 1,
-        revenue: existing.revenue + order.total,
+        revenue: existing.revenue + Number(order.total),
       })
     })
 
@@ -201,11 +216,13 @@ const Start = () => {
                         </div>
                         <div>
                           <p className="font-medium">{product.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {product.quantity} vendidos • {formatPrice(product.revenue / product.quantity)}/unidad
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold">{product.quantity} vendidos</p>
-                        <p className="text-sm text-green-600">{formatPrice(product.revenue)}</p>
+                        <p className="font-bold text-green-600">{formatPrice(product.revenue)}</p>
                       </div>
                     </div>
                   ))}

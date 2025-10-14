@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { LucideIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import clienteAxios from "@/config/axios";
 
 type LinkProps = {
   redirectTo: string;
@@ -16,9 +17,16 @@ const SidebarLink = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const logout = () => {
-    localStorage.removeItem("AUTH_TOKEN");
-    navigate("/");
+  const logout = async () => {
+    try {
+      // Hacer llamada al backend para limpiar la cookie
+      await clienteAxios.post('/auth/logout') // Ajustar la ruta según tu backend
+    } catch (error) {
+      console.error('Error al hacer logout:', error)
+    } finally {
+      // Redirigir independientemente del resultado
+      navigate("/");
+    }
   };
 
   const isActive = location.pathname === `/${redirectTo}`;

@@ -1,7 +1,6 @@
 import { isAxiosError } from 'axios'
-import { ordersBack, tenantRoute } from '@/lib/routes'
+import { getOrdersRoute, getCreateLocalOrderRoute, getUpdateOrderStatusRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
-import { getTenantId } from '@/lib/functions'
 import { NewOrder, Order, OrderStatus, OrderFilterStatus } from '@/types/order'
 import { format } from 'date-fns'
 
@@ -14,13 +13,12 @@ const getOrdersTodayByStatus = async (
   status: OrderFilterStatus,
   date?: Date
 ): Promise<GetOrdersResponse> => {
-  const tenantId = getTenantId()
   // si viene date → lo mando como query param YYYY-MM-DD, por ahora se utiliza en el dashboard el date y en panel orders se setea la fecha por de hoy default en el back
   const dateFormateado = date ? format(date, 'yyyy-MM-dd') : undefined //local
   const dateParam = dateFormateado ? `?date=${dateFormateado}` : ''
   try {
     const { data } = await clienteAxios.get(
-      `${tenantRoute}/${tenantId}/${ordersBack}/today/${status}${dateParam}`
+      `${getOrdersRoute()}/today/${status}${dateParam}`
     )
     return data
   } catch (error) {
@@ -33,29 +31,20 @@ const getOrdersTodayByStatus = async (
 }
 
 const createOrder = async (order: NewOrder): Promise<Order> => {
-  const tenantId = getTenantId()
   //DTO para el backend
   const orderForBackend = {
     ...order,
     items: order.items.map((item) => ({
       productId: item.product.id,
-      quantity: 1,
-      ingredients: [
-        ...item.includedIngredients.map((i) => ({
-          ingredientId: i.id,
-          isAdded: true
-        })),
-        ...item.excludedIngredients.map((i) => ({
-          ingredientId: i.id,
-          isAdded: false
-        }))
-      ]
+      quantity: item.quantity,
+      ingredients: item.ingredientsForBackend || []
     }))
   }
+  console.log("🚀 ~ createOrder ~ orderForBackend:", orderForBackend)
 
   try {
     const { data }: { data: Order } = await clienteAxios.post(
-      `${tenantRoute}/${tenantId}/${ordersBack}`,
+      getCreateLocalOrderRoute(),
       orderForBackend
     )
     return data
@@ -69,10 +58,9 @@ const createOrder = async (order: NewOrder): Promise<Order> => {
 }
 
 const updateStatusOrder = async (orderId: string, status: OrderStatus): Promise<Order> => {
-  const tenantId = getTenantId()
   try {
     const { data }: { data: Order } = await clienteAxios.patch(
-      `${tenantRoute}/${tenantId}/${ordersBack}/${orderId}`,
+      getUpdateOrderStatusRoute(orderId),
       { status }
     )
     return data

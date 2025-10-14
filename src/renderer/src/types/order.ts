@@ -1,14 +1,37 @@
 import { Ingredient } from './ingredient'
 import { ProductWithIngredients } from './product'
 
+// Estructura para enviar ingredientes al backend
+export interface OrderItemIngredientForBackend {
+  ingredientId: string
+  isAdded: boolean // true = agregado; false = remoción
+  quantity: number
+  unitPrice?: number // precio unitario del ingrediente al momento del pedido
+}
+
+// Estructura que viene del backend para ingredientes customizados
+export interface OrderItemIngredientCustomization {
+  isAdded: boolean
+  quantity: number
+  unitPrice: number
+  ingredient: {
+    id: string
+    description: string
+  }
+}
+
 export interface OrderItem {
   id: string
   product: ProductWithIngredients
-  includedIngredients: Ingredient[]
-  excludedIngredients: Ingredient[]
+  includedIngredients: Ingredient[] // Para mostrar en UI (compatibilidad)
+  excludedIngredients: Ingredient[] // Para mostrar en UI (compatibilidad)
   totalPrice: number
   unitPrice?: number //Se usa cuando viene del back, pero no cuando se crea una orden del front
   quantity: number
+  // Nueva estructura para el backend (al crear orden)
+  ingredientsForBackend?: OrderItemIngredientForBackend[]
+  // Estructura que viene del backend (al leer órdenes)
+  ingredientCustomizations?: OrderItemIngredientCustomization[]
 }
 
 export enum OrderStatus {
@@ -44,7 +67,7 @@ export interface Order {
   code: string
   source: OrderSource
   userId?: string
-  tenantId: string
+  tenantId?: string
   tenantDisplayName?: string
   createdAt: Date
 }

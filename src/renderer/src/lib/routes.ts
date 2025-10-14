@@ -16,6 +16,26 @@ export const orderCreateLocal = 'create-local'
 export const configurationBack = 'configuration'
 export const configurationPublicBack = 'configuration-public'
 
-// export const getTenantRoute = (tenantId: string, subroute: string = ''): string => {
-//   return `${tenantRoute}/${tenantId}${subroute}`;
-// };
+// Helpers para armar rutas del backend con tenantId automático
+export const buildTenantRoute = (resource: string, id?: string): string => {
+  const basePath = `${tenantRoute}/{tenantId}/${resource}`
+  return id ? `${basePath}/${id}` : basePath
+}
+
+// Helpers específicos para cada recurso
+export const getProductsRoute = () => buildTenantRoute(productsBack)
+export const getProductRoute = (id: string) => buildTenantRoute(productsBack, id)
+
+export const getCategoriesRoute = () => buildTenantRoute(categoriesBack)
+export const getCategoryRoute = (id: string) => buildTenantRoute(categoriesBack, id)
+
+export const getIngredientsRoute = () => buildTenantRoute(ingredientsBack)
+export const getIngredientRoute = (id: string) => buildTenantRoute(ingredientsBack, id)
+
+export const getOrdersRoute = () => buildTenantRoute(ordersBack)
+export const getOrderRoute = (id: string) => buildTenantRoute(ordersBack, id)
+export const getCreateLocalOrderRoute = () => buildTenantRoute(ordersBack)
+export const getUpdateOrderStatusRoute = (orderId: string) => buildTenantRoute(ordersBack, orderId)
+
+export const getConfigurationRoute = () => buildTenantRoute(configurationBack)
+export const getPublicConfigurationRoute = () => buildTenantRoute(configurationPublicBack)

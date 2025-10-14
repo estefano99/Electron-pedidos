@@ -26,6 +26,7 @@ export function ProductList() {
     queryFn: getProducts,
     staleTime: 5 * 60 * 1000,
   });
+  console.log("🚀 ~ ProductList ~ products:", products)
   const [selectedProduct, setSelectedProduct] = useState<ProductWithIngredients | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)

@@ -1,13 +1,11 @@
 import { isAxiosError } from 'axios'
-import { configurationBack, configurationPublicBack, tenantRoute } from '@/lib/routes'
+import { getConfigurationRoute, getPublicConfigurationRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
-import { getTenantId } from '@/lib/functions'
 import { RestaurantSettings } from '@/types/configuration'
 
 const getConfiguration = async () => {
-  const tenantId = await getTenantId()
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${configurationBack}`)
+    const { data } = await clienteAxios.get(getConfigurationRoute())
     return data
   } catch (error) {
     console.log('[ERROR] getConfiguration: ', error)
@@ -19,9 +17,8 @@ const getConfiguration = async () => {
 }
 
 const getConfigurationPublic = async () => {
-  const tenantId = await getTenantId()
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${configurationPublicBack}`)
+    const { data } = await clienteAxios.get(getPublicConfigurationRoute())
     return data
   } catch (error) {
     console.log('[ERROR] getConfiguration: ', error)
@@ -34,7 +31,6 @@ const getConfigurationPublic = async () => {
 
 const createConfiguration = async (settings: RestaurantSettings) => {
   console.log(settings)
-  const tenantId = await getTenantId()
 
   const formData = new FormData()
   formData.append('displayName', settings.displayName)
@@ -50,7 +46,7 @@ const createConfiguration = async (settings: RestaurantSettings) => {
   console.log(formData)
   try {
     const { data } = await clienteAxios.put(
-      `${tenantRoute}/${tenantId}/${configurationBack}`,
+      getConfigurationRoute(),
       formData
     )
     return data

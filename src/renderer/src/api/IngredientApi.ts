@@ -1,13 +1,11 @@
 import { GetIngredientResponse, Ingredient, IngredientForm } from '@/types/ingredient'
 import { isAxiosError } from 'axios'
-import { ingredientsBack, tenantRoute } from '@/lib/routes'
+import { getIngredientsRoute, getIngredientRoute } from '@/lib/routes'
 import clienteAxios from '@/config/axios'
-import { getTenantId } from '@/lib/functions'
 
 const getIngredients = async (): Promise<GetIngredientResponse> => {
-  const tenantId = getTenantId()
   try {
-    const { data } = await clienteAxios.get(`${tenantRoute}/${tenantId}/${ingredientsBack}`)
+    const { data } = await clienteAxios.get(getIngredientsRoute())
     return data
   } catch (error) {
     console.error('[ERROR] getIngredients: ', error)
@@ -19,10 +17,9 @@ const getIngredients = async (): Promise<GetIngredientResponse> => {
 }
 
 const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient> => {
-  const tenantId = getTenantId()
   try {
     const { data } = await clienteAxios.post(
-      `${tenantRoute}/${tenantId}/${ingredientsBack}`,
+      getIngredientsRoute(),
       ingredient
     )
     return data
@@ -36,12 +33,12 @@ const createIngredient = async (ingredient: IngredientForm): Promise<Ingredient>
 }
 
 const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
-  const tenantId = getTenantId()
-
-  const { id, description } = ingredient
+  const { id, description, extraPrice, isActive } = ingredient
   try {
-    const { data } = await clienteAxios.put(`${tenantRoute}/${tenantId}/${ingredientsBack}/${id}`, {
-      description
+    const { data } = await clienteAxios.put(getIngredientRoute(id), {
+      description,
+      extraPrice,
+      isActive
     })
     return data
   } catch (error) {
@@ -54,12 +51,10 @@ const editIngredient = async (ingredient: Ingredient): Promise<Ingredient> => {
 }
 
 const deleteIngredient = async (ingredient: Ingredient) => {
-  const tenantId = getTenantId()
-
   const { id } = ingredient
   try {
     const { data } = await clienteAxios.delete(
-      `${tenantRoute}/${tenantId}/${ingredientsBack}/${id}`
+      getIngredientRoute(id)
     )
     return data
   } catch (error) {
