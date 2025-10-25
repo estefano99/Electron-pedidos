@@ -51,23 +51,26 @@ const Start = () => {
 
   //Ordenes que vienen del back y las guardamos en un nombre mas declarativo
   const todayOrders = data?.orders || [];
-  console.log("🚀 ~ Start ~ todayOrders:", todayOrders)
 
-  const todayRevenue = todayOrders.reduce((acumulador: number, order: Order) => Number(acumulador) + Number(order.total), 0) || 0 //Ganancia del dia
-  const todayOrdersCount = todayOrders?.length;
+  // Filtrar solo órdenes válidas (no canceladas) para cálculos de revenue y estadísticas
+  const validOrders = todayOrders.filter(order => order.status !== OrderStatus.CANCELLED);
+
+  const todayRevenue = validOrders.reduce((acumulador: number, order: Order) => Number(acumulador) + Number(order.total), 0) || 0 //Ganancia del dia
+  const todayOrdersCount = todayOrders?.length; // Total incluyendo canceladas (para mostrar volumen)
   const completedOrders = todayOrders.filter(order => order.status === OrderStatus.READY || order.status === OrderStatus.DELIVERED).length; //Ordenes listas o delivery. Cuenta como completadas
   const completionRate = todayOrdersCount > 0 ? (completedOrders / todayOrdersCount) * 100 : 0; //Porcentaje de ordenes completadas
 
   const productMap = new Map<string, ProductStats>(); // clave valor de products de tipo ProductStats, cada clave es el id
 
   const productStats = useMemo(() => {
-    todayOrders?.forEach(order => {
+    // Solo contar productos de órdenes válidas (no canceladas)
+    validOrders?.forEach(order => {
       order.items.forEach(item => {
         const productId = item.product.id
-        
+
         // Calcular revenue total del item (base + extras)
         const baseRevenue = Number(item.unitPrice ?? 0) * item.quantity
-        
+
         // Sumar extras de ingredientes
         const extrasRevenue = (item.ingredientCustomizations || []).reduce((sum, customization) => {
           if (customization.isAdded && customization.unitPrice > 0) {
@@ -75,9 +78,9 @@ const Start = () => {
           }
           return sum
         }, 0)
-        
+
         const totalItemRevenue = baseRevenue + extrasRevenue
-        
+
         const existing = productMap.get(productId)
 
         if (existing) {
@@ -97,7 +100,7 @@ const Start = () => {
       })
     })
     return Array.from(productMap.values()).sort((a, b) => b.quantity - a.quantity); //Retorna el array ordenado en forma descendente
-  }, [todayOrders]);
+  }, [validOrders]);
 
   // Calculate hourly statistics
   const { hourlyStats, peakHour } = useMemo(() => {
@@ -107,8 +110,8 @@ const Start = () => {
       hourlyMap.set(i, { hour: i, orders: 0, revenue: 0 })
     }
 
-    // Rellenar con las órdenes del día
-    todayOrders.forEach((order) => {
+    // Rellenar solo con órdenes válidas (no canceladas)
+    validOrders.forEach((order) => {
       const hour = new Date(order.createdAt).getHours()
       const existing = hourlyMap.get(hour)!
       hourlyMap.set(hour, {
@@ -127,7 +130,7 @@ const Start = () => {
     )
 
     return { hourlyStats: stats, peakHour: peak }
-  }, [todayOrders])
+  }, [validOrders])
 
   return (
     <div className="min-h-screen w-full overflow-auto">

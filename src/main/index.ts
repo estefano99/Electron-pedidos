@@ -5,6 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { autoUpdater } from 'electron-updater'
 // import { printer as ThermalPrinter, types as PrinterTypes } from 'node-thermal-printer'
 import { createPrinterStrategy } from './printers/PrinterFactory'
+import { tenantStore, userStore, clearAllStore } from './store'
 
 let mainWindow: BrowserWindow
 
@@ -61,7 +62,7 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.foodmanagement.app')
-  autoUpdater.checkForUpdatesAndNotify()
+  if (!is.dev) autoUpdater.checkForUpdatesAndNotify()
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -69,6 +70,42 @@ app.whenReady().then(() => {
 
   ipcMain.on('ping', () => console.log('pong'))
 
+  // ========== Store Handlers ==========
+  // Store IPC handlers
+  ipcMain.handle('store:get-tenant-id', async () => {
+    return await tenantStore.getTenantId()
+  })
+
+  ipcMain.handle('store:set-tenant-id', async (_event, tenantId) => {
+    await tenantStore.setTenantId(tenantId)
+  })
+
+  ipcMain.handle('store:clear-tenant-id', async () => {
+    await tenantStore.clearTenantId()
+  })
+
+  // User
+  ipcMain.handle('store:get-user', async () => {
+    return await userStore.getUser()
+  })
+
+  ipcMain.handle('store:set-user', async (_, user) => {
+    await userStore.setUser(user)
+    return { success: true }
+  })
+
+  ipcMain.handle('store:clear-user', async () => {
+    await userStore.clearUser()
+    return { success: true }
+  })
+
+  // Clear all (logout)
+  ipcMain.handle('store:clear-all', async () => {
+    await clearAllStore()
+    return { success: true }
+  })
+
+  // ========== Printers Handlers ==========
   ipcMain.handle('get-thermal-printers', async () => {
     const win = BrowserWindow.getAllWindows()[0]
     if (!win) throw new Error('No hay ventana activa.')

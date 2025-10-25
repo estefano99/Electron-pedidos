@@ -20,7 +20,10 @@ const SidebarLink = ({
   const logout = async () => {
     try {
       // Hacer llamada al backend para limpiar la cookie
-      await clienteAxios.post('/auth/logout') // Ajustar la ruta según tu backend
+      await clienteAxios.post('/auth/logout')
+      
+      // Limpiar el store local (tenantId y user)
+      await window.api.clearAllStore()
     } catch (error) {
       console.error('Error al hacer logout:', error)
     } finally {

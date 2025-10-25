@@ -50,7 +50,19 @@ export function Login() {
         className: "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
       })
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      // Guardar tenantId y user en el store local
+      if (data.tenantId) {
+        await window.api.setTenantId(data.tenantId)
+      }
+      
+      // Guardar información del usuario
+      await window.api.setUser({
+        id: data.userId || '',
+        username: data.username || '',
+        role: data.role || ''
+      })
+
       navigate(startRoute)
     },
   })

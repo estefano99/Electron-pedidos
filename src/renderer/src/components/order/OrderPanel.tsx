@@ -46,7 +46,6 @@ export function OrderPanel({ setCustomerName, setScheduledTime, setActiveTab }: 
   const printTicketMutation = useMutation({
     mutationFn: async (order: Order) => await imprimirTicket(order),
     onSuccess: () => {
-      console.log("Salio por el success")
       toast.success("Ticket enviado a la impresora")
     },
     onError: (error: Error) => {

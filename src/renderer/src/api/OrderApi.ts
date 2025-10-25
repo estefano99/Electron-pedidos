@@ -40,7 +40,6 @@ const createOrder = async (order: NewOrder): Promise<Order> => {
       ingredients: item.ingredientsForBackend || []
     }))
   }
-  console.log("🚀 ~ createOrder ~ orderForBackend:", orderForBackend)
 
   try {
     const { data }: { data: Order } = await clienteAxios.post(

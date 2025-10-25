@@ -37,9 +37,6 @@ export function OrderItemCard({ item, onRemove, onEdit }: Props) {
     (ex) => !item.includedIngredients.some((ing) => ing.id === ex.id)
   )
 
-  console.log("🚀 ~ OrderItemCard ~ extras:", extras)
-  console.log("🚀 ~ OrderItemCard ~ removed:", removed)
-
   return (
     <Card>
       <CardContent className="p-4">

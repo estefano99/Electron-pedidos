@@ -42,6 +42,19 @@ declare global {
 
       /** (Opcional) Si ya lo usabas en UI */
       getAppVersion?: () => Promise<string>
+
+      // Store - Tenant
+      getTenantId: () => Promise<string | null>
+      setTenantId: (tenantId: string | null) => Promise<void>
+      clearTenantId: () => Promise<void>
+
+      // Store - User
+      getUser: () => Promise<{ id: string; username: string; role: string } | null>
+      setUser: (user: { id: string; username: string; role: string } | null) => Promise<{ success: boolean }>
+      clearUser: () => Promise<{ success: boolean }>
+
+      // Store - Clear all
+      clearAllStore: () => Promise<{ success: boolean }>
     }
   }
 }

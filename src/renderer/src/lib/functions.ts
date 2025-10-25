@@ -121,10 +121,25 @@ function generarHTMLTicket(data: Order): string {
 
   const productos = data.items
     .map((item) => {
-      const sinIngredientes =
-        item.excludedIngredients.length > 0
-          ? item.excludedIngredients.map((i) => ` SIN: ${i.description}`).join('<br/>')
-          : ''
+      // Ingredientes sacados (isAdded = false)
+      const ingredientesSacados = item.ingredientCustomizations
+        ? item.ingredientCustomizations
+            .filter((ic) => !ic.isAdded)
+            .map((ic) => ` <span style="color: #dc2626;">SIN: ${ic.ingredient.description}</span>`)
+            .join('<br/>')
+        : ''
+
+      // Ingredientes extras (isAdded = true Y unitPrice > 0)
+      const ingredientesExtras = item.ingredientCustomizations
+        ? item.ingredientCustomizations
+            .filter((ic) => ic.isAdded && ic.unitPrice > 0)
+            .map((ic) => {
+              const precioTotal = ic.unitPrice * ic.quantity * item.quantity
+              const precio = ` (+${formatPrice(precioTotal)})`
+              return ` <span style="color: #16a34a;">+ ${ic.quantity}x ${ic.ingredient.description}${precio}</span>`
+            })
+            .join('<br/>')
+        : ''
 
       // 👇 Alineamos el precio a la derecha con puntos intermedios
       const nombreYPrecio =
@@ -134,7 +149,9 @@ function generarHTMLTicket(data: Order): string {
       return `
       <div style="margin-bottom: 6px;">
         ${nombreYPrecio}<br/>
-        ${sinIngredientes}
+        ${ingredientesSacados}
+        ${ingredientesSacados && ingredientesExtras ? '<br/>' : ''}
+        ${ingredientesExtras}
       </div>
     `
     })
