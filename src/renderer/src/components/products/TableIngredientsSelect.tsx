@@ -23,7 +23,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Checkbox } from "../ui/checkbox"
-import { Ingredient } from "@/types/ingredient"
 import { UseFormSetValue } from "react-hook-form"
 
 type IngredientSelected = {
@@ -68,7 +67,7 @@ const TableIngredientsSelect = ({ ingredientsSelected, setValue }: Props) => {
   }, [rowSelection])
 
 
-  const columns: ColumnDef<Ingredient>[] = [
+  const columns: ColumnDef<IngredientSelected>[] = [
     {
       id: "select",
       header: ({ table }) => (
