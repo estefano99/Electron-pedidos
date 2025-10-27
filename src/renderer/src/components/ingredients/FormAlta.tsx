@@ -86,7 +86,6 @@ const FormAlta = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     await mutation.mutateAsync(values);
   }
   return (

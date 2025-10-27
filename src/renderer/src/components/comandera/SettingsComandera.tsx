@@ -33,7 +33,6 @@ const SettingsComandera = () => {
       ...payload
     })
 
-    console.log("Settings comandera: ", result)
     result.ok
       ? alert(`✅ Ticket enviado a ${destino}`)
       : alert(`❌ Error: ${result.error}`)

@@ -7,13 +7,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { category } from "@/types/category";
 import { Trash2, TriangleAlert } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { deleteCategory } from "@/api/CategoryApi";
+import { useState } from "react";
 
 interface props {
   category: category
@@ -21,15 +21,16 @@ interface props {
 
 const Delete = ({ category }: props) => {
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
 
   const mutation = useMutation({
     mutationFn: deleteCategory,
     onError: (error: Error) => {
       console.log(error);
       toast({
-        title: `Error al eliminar Categoria`,
+        title: `Error al eliminar Categoría`,
         variant: "destructive",
-        description: error.message || "Error inoportuno al eliminar Categoria",
+        description: error.message || "Error inoportuno al eliminar categoría`",
         className:
           "from-red-600 to-red-800 bg-gradient-to-tr bg-opacity-80 backdrop-blur-sm",
       });
@@ -50,31 +51,33 @@ const Delete = ({ category }: props) => {
       });
 
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setOpen(false);
     },
   });
 
   const handleDelete = async (data: category) => {
-    console.log(data)
     await mutation.mutateAsync(data);
   };
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Trash2 className="w-5 h-5" />
-          <p>Eliminar Categoria</p>
-        </div>
-      </AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <div
+        className="flex items-center gap-2 cursor-pointer w-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        <Trash2 className="w-5 h-5" />
+        <p>Eliminar Categoría</p>
+      </div>
       <AlertDialogContent className="w-full">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-xl mb-2">
-            ¿Estás seguro que deseas eliminar la siguiente Categoria?
+            ¿Estás seguro que deseas eliminar la siguiente Categoría?
           </AlertDialogTitle>
           <AlertDialogDescription className="flex flex-col gap-0.5">
-            <span className="block"><span className="font-bold text-slate-400 mr-1">Categoria:</span> {`${category.description || "-"}`}</span>
+            <span className="block"><span className="font-bold text-slate-400 mr-1">Categoría:</span> {`${category.description || "-"}`}</span>
             <span className="flex bg-red-500/25 px-3 py-2 rounded-lg mt-6 text-red-300/80">
               <TriangleAlert className="w-5 h-5 mr-1" />
               Al eliminarlo se borrará de la base de datos de forma permanente.

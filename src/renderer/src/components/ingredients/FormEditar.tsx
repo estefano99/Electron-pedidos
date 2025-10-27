@@ -78,7 +78,6 @@ const FormEditar = ({
       });
     },
     onSuccess: (respuesta) => {
-      console.log(respuesta);
       toast({
         title: "Ingrediente editado exitosamente!",
         description: (

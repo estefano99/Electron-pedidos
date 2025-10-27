@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { OrderItem, OrderStatus, NewOrder, OrderSource } from '@/types/order'
-import { getTenantId } from '@/lib/functions'
 import { v4 as uuidv4 } from 'uuid'
 
 export function useOrder() {

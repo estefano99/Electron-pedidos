@@ -1,34 +1,50 @@
 import { useQuery } from '@tanstack/react-query'
-import clienteAxios from '@/config/axios'
 
 interface AuthUser {
-  tenantId: string | null
-  userId: string
+  id: string
+  username: string
   role: string
 }
 
-const getCurrentUser = async (): Promise<AuthUser | null> => {
+interface AuthData {
+  user: AuthUser | null
+  tenantId: string | null
+}
+
+const getCurrentUser = async (): Promise<AuthData> => {
   try {
-    const { data } = await clienteAxios.get('/auth/me')
-    return data
+    // Obtener datos del store local (electron-store)
+    const [user, tenantId] = await Promise.all([
+      window.api.getUser(),
+      window.api.getTenantId()
+    ])
+
+    return {
+      user,
+      tenantId
+    }
   } catch (error) {
-    return null
+    console.error('Error obteniendo datos del store:', error)
+    return {
+      user: null,
+      tenantId: null
+    }
   }
 }
 
 export function useAuth() {
-  const { data: user, isLoading, error } = useQuery<AuthUser | null>({
+  const { data, isLoading, error } = useQuery<AuthData>({
     queryKey: ['currentUser'],
     queryFn: getCurrentUser,
-    retry: false, // No reintentar si falla
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    retry: false,
+    staleTime: Infinity, // Los datos del store son siempre válidos hasta que cambien
   })
 
   return {
-    user,
+    user: data?.user || null,
     isLoading,
-    isAuthenticated: !!user,
-    tenantId: user?.tenantId || null,
+    isAuthenticated: !!data?.user,
+    tenantId: data?.tenantId || null,
     error
   }
 }

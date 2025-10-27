@@ -1,9 +1,8 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, globalShortcut } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { autoUpdater } from 'electron-updater'
-// import { printer as ThermalPrinter, types as PrinterTypes } from 'node-thermal-printer'
 import { createPrinterStrategy } from './printers/PrinterFactory'
 import { tenantStore, userStore, clearAllStore } from './store'
 
@@ -42,7 +41,7 @@ function createWindow(): void {
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://ipapi.co http://localhost:4000; img-src 'self' data: blob: https://res.cloudinary.com; style-src 'self' 'unsafe-inline';"
+          "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://food-management-backend-production.up.railway.app https://ipapi.co http://localhost:4000; img-src 'self' data: blob: https://res.cloudinary.com; style-src 'self' 'unsafe-inline';"
         ]
       }
     })
@@ -68,7 +67,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  ipcMain.on('ping', () => console.log('pong'))
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    const win = BrowserWindow.getFocusedWindow()
+    if (win) win.webContents.openDevTools()
+  })
 
   // ========== Store Handlers ==========
   // Store IPC handlers

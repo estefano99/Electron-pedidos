@@ -38,6 +38,7 @@ import FormEditar from "./FormEditar"
 import FormAlta from "./FormAlta"
 import Delete from "./Delete"
 import { Ingredient } from "@/types/ingredient"
+import { formatPrice } from "@/lib/functions"
 
 type props = {
   ingredients: Ingredient[]
@@ -79,6 +80,18 @@ export function IngredientTable({ ingredients }: props) {
           />
         </Button>
       ),
+    },
+    {
+      accessorKey: "extraPrice",
+      header: () => <div className="text-center text-sm">Precio Extra</div>,
+      cell: ({ row }) => {
+        const extraPrice: number = row.getValue("extraPrice")
+        return (
+          <div className="text-center">
+            {formatPrice(extraPrice)}
+          </div>
+        )
+      },
     },
     {
       accessorKey: "isActive",

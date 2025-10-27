@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
-import { Settings, Save, MapPin, Store, ImageIcon, Loader2 } from "lucide-react"
+import { Save, MapPin, Store, ImageIcon, Loader2 } from "lucide-react"
 import { createConfiguration, getConfiguration } from "@/api/ConfigurationApi"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { z } from "zod";

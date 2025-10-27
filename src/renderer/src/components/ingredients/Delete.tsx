@@ -7,13 +7,13 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Ingredient } from "@/types/ingredient";
 import { Trash2, TriangleAlert } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/hooks/use-toast";
 import { deleteIngredient } from "@/api/IngredientApi";
+import { useState } from "react";
 
 interface props {
   ingredient: Ingredient
@@ -21,6 +21,7 @@ interface props {
 
 const Delete = ({ ingredient }: props) => {
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
 
   const mutation = useMutation({
     mutationFn: deleteIngredient,
@@ -50,24 +51,26 @@ const Delete = ({ ingredient }: props) => {
       });
 
       queryClient.invalidateQueries({ queryKey: ["ingredients"] });
+      setOpen(false);
     },
   });
 
   const handleDelete = async (data: Ingredient) => {
-    console.log(data)
     await mutation.mutateAsync(data);
   };
+
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <div
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Trash2 className="w-5 h-5" />
-          <p>Eliminar Ingrediente</p>
-        </div>
-      </AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <div
+        className="flex items-center gap-2 cursor-pointer w-full"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen(true);
+        }}
+      >
+        <Trash2 className="w-5 h-5" />
+        <p>Eliminar Ingrediente</p>
+      </div>
       <AlertDialogContent className="w-full">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-xl mb-2">

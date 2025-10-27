@@ -73,7 +73,6 @@ type Props = {
 };
 
 const FormEditar = ({ product, setIsEdit, isEdit, setProductEdit }: Props) => {
-  console.log("🚀 ~ FormEditar ~ product:", product)
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filePreview, setFilePreview] = useState<string | null>(null);
